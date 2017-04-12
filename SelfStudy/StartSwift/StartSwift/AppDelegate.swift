@@ -1,9 +1,9 @@
 //
 //  AppDelegate.swift
-//  Checklists
+//  StartSwift
 //
-//  Created by Matthijs on 04/07/2016.
-//  Copyright © 2016 Razeware. All rights reserved.
+//  Created by Dabu on 2017. 3. 30..
+//  Copyright © 2017년 Dabu. All rights reserved.
 //
 
 import UIKit
@@ -21,7 +21,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationWillResignActive(_ application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
-        // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
+        // Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
     }
 
     func applicationDidEnterBackground(_ application: UIApplication) {

@@ -17,6 +17,7 @@
 		7B352B201D2E7D5A00A0488B /* AllListsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B352B1F1D2E7D5A00A0488B /* AllListsViewController.swift */; };
 		7B352B221D2E881B00A0488B /* Checklist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B352B211D2E881B00A0488B /* Checklist.swift */; };
 		7B352B241D2E921D00A0488B /* ListDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B352B231D2E921D00A0488B /* ListDetailViewController.swift */; };
+		7B352B261D2F908500A0488B /* DataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B352B251D2F908500A0488B /* DataModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,9 +30,10 @@
 		7B2952A91D2A44A3000B9D60 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7B2952AF1D2BA9AA000B9D60 /* ChecklistItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChecklistItem.swift; sourceTree = "<group>"; };
 		7B352B1D1D2CF14E00A0488B /* ItemDetailViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = ItemDetailViewController.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
-		7B352B1F1D2E7D5A00A0488B /* AllListsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AllListsViewController.swift; sourceTree = "<group>"; };
+		7B352B1F1D2E7D5A00A0488B /* AllListsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.swift; path = AllListsViewController.swift; sourceTree = "<group>"; tabWidth = 4; };
 		7B352B211D2E881B00A0488B /* Checklist.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Checklist.swift; sourceTree = "<group>"; };
 		7B352B231D2E921D00A0488B /* ListDetailViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListDetailViewController.swift; sourceTree = "<group>"; };
+		7B352B251D2F908500A0488B /* DataModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -45,15 +47,53 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0D8F04691E9E243700B88D55 /* App Delegate */ = {
+			isa = PBXGroup;
+			children = (
+				7B29529D1D2A44A3000B9D60 /* AppDelegate.swift */,
+			);
+			name = "App Delegate";
+			sourceTree = "<group>";
+		};
+		0D8F046A1E9E244100B88D55 /* ViewControllers */ = {
+			isa = PBXGroup;
+			children = (
+				7B352B1F1D2E7D5A00A0488B /* AllListsViewController.swift */,
+				7B29529F1D2A44A3000B9D60 /* ChecklistViewController.swift */,
+				7B352B1D1D2CF14E00A0488B /* ItemDetailViewController.swift */,
+				7B352B231D2E921D00A0488B /* ListDetailViewController.swift */,
+			);
+			name = ViewControllers;
+			sourceTree = "<group>";
+		};
+		0D8F046B1E9E245500B88D55 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				7B352B251D2F908500A0488B /* DataModel.swift */,
+				7B352B211D2E881B00A0488B /* Checklist.swift */,
+				7B2952AF1D2BA9AA000B9D60 /* ChecklistItem.swift */,
+			);
+			name = Model;
+			sourceTree = "<group>";
+		};
+		0D8F046C1E9E246300B88D55 /* Storyboard */ = {
+			isa = PBXGroup;
+			children = (
+				7B2952A61D2A44A3000B9D60 /* LaunchScreen.storyboard */,
+				7B2952A11D2A44A3000B9D60 /* Main.storyboard */,
+			);
+			name = Storyboard;
+			sourceTree = "<group>";
+		};
 		7B2952911D2A44A3000B9D60 = {
 			isa = PBXGroup;
 			children = (
 				7B29529C1D2A44A3000B9D60 /* Checklists */,
 				7B29529B1D2A44A3000B9D60 /* Products */,
 			);
-			indentWidth = 2;
+			indentWidth = 4;
 			sourceTree = "<group>";
-			tabWidth = 2;
+			tabWidth = 4;
 		};
 		7B29529B1D2A44A3000B9D60 /* Products */ = {
 			isa = PBXGroup;
@@ -66,17 +106,12 @@
 		7B29529C1D2A44A3000B9D60 /* Checklists */ = {
 			isa = PBXGroup;
 			children = (
-				7B29529D1D2A44A3000B9D60 /* AppDelegate.swift */,
-				7B29529F1D2A44A3000B9D60 /* ChecklistViewController.swift */,
-				7B2952A11D2A44A3000B9D60 /* Main.storyboard */,
+				0D8F04691E9E243700B88D55 /* App Delegate */,
+				0D8F046A1E9E244100B88D55 /* ViewControllers */,
+				0D8F046B1E9E245500B88D55 /* Model */,
+				0D8F046C1E9E246300B88D55 /* Storyboard */,
 				7B2952A41D2A44A3000B9D60 /* Assets.xcassets */,
-				7B2952A61D2A44A3000B9D60 /* LaunchScreen.storyboard */,
 				7B2952A91D2A44A3000B9D60 /* Info.plist */,
-				7B2952AF1D2BA9AA000B9D60 /* ChecklistItem.swift */,
-				7B352B1D1D2CF14E00A0488B /* ItemDetailViewController.swift */,
-				7B352B1F1D2E7D5A00A0488B /* AllListsViewController.swift */,
-				7B352B211D2E881B00A0488B /* Checklist.swift */,
-				7B352B231D2E921D00A0488B /* ListDetailViewController.swift */,
 			);
 			path = Checklists;
 			sourceTree = "<group>";
@@ -108,7 +143,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0800;
-				LastUpgradeCheck = 0830;
+				LastUpgradeCheck = 0800;
 				ORGANIZATIONNAME = Razeware;
 				TargetAttributes = {
 					7B2952991D2A44A3000B9D60 = {
@@ -158,6 +193,7 @@
 				7B352B1E1D2CF14E00A0488B /* ItemDetailViewController.swift in Sources */,
 				7B352B221D2E881B00A0488B /* Checklist.swift in Sources */,
 				7B2952B01D2BA9AA000B9D60 /* ChecklistItem.swift in Sources */,
+				7B352B261D2F908500A0488B /* DataModel.swift in Sources */,
 				7B352B201D2E7D5A00A0488B /* AllListsViewController.swift in Sources */,
 				7B29529E1D2A44A3000B9D60 /* AppDelegate.swift in Sources */,
 			);
@@ -200,10 +236,8 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -249,10 +283,8 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
