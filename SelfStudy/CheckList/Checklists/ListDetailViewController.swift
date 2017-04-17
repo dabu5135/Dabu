@@ -2,6 +2,7 @@
 import UIKit
 
 protocol ListDetailViewControllerDelegate: class {
+    
     func listDetailViewControllerDidCancel(_ controller: ListDetailViewController)
     
     func listDetailViewController(_ controller: ListDetailViewController,
@@ -11,15 +12,17 @@ protocol ListDetailViewControllerDelegate: class {
                                   didFinishEditing checklist: Checklist)
 }
 
-class ListDetailViewController: UITableViewController, UITextFieldDelegate {
+class ListDetailViewController: UITableViewController, UITextFieldDelegate, IconPickerViewControllerDelegate {
     
     // Properties
     @IBOutlet weak var textField: UITextField!
     @IBOutlet weak var doneBarButton: UIBarButtonItem!
+    @IBOutlet weak var iconImageView: UIImageView!
     
     weak var delegate: ListDetailViewControllerDelegate?
     
     var checklistToEdit: Checklist?
+    var iconName: String = "Folder"
     
     // MARK: - ViewController Life Cycle
     override func viewDidLoad() {
@@ -29,6 +32,8 @@ class ListDetailViewController: UITableViewController, UITextFieldDelegate {
             title = "Edit Checklist"
             textField.text = checklist.name
             doneBarButton.isEnabled = true
+            iconName = checklist.iconName
+            iconImageView.image = UIImage(named: iconName)
         }
     }
     
@@ -45,12 +50,24 @@ class ListDetailViewController: UITableViewController, UITextFieldDelegate {
     @IBAction func done() {
         if let checklist = checklistToEdit {
             checklist.name = textField.text!
+            checklist.iconName = iconName
             delegate?.listDetailViewController(self,
                                                didFinishEditing: checklist)
         } else {
             let checklist = Checklist(name: textField.text!)
+            checklist.iconName = iconName
             delegate?.listDetailViewController(self,
                                                didFinishAdding: checklist)
+        }
+    }
+    
+    // MARK: - Segue
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
+        if segue.identifier == "PickIcon" {
+            
+            let controller = segue.destination as! IconPickerViewController
+            controller.delegate = self
         }
     }
 }
@@ -60,7 +77,12 @@ extension ListDetailViewController {
     // MARK: - TableView Delegate
     override func tableView(_ tableView: UITableView,
                             willSelectRowAt indexPath: IndexPath) -> IndexPath? {
-        return nil
+        
+        if indexPath.section == 1 {
+            return indexPath
+        } else {
+            return nil
+        }
     }
 }
 
@@ -76,5 +98,15 @@ extension ListDetailViewController {
         
         doneBarButton.isEnabled = (newText.length > 0)
         return true
+    }
+}
+
+extension ListDetailViewController {
+    
+    func iconPicker(_ picker: IconPickerViewController, didPick iconName: String) {
+        
+        self.iconName = iconName
+        iconImageView.image = UIImage(named: self.iconName)
+        navigationController!.popViewController(animated: true)
     }
 }

@@ -7,11 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0DD18FE21EA4A10D002DAC2B /* IconPickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DD18FE11EA4A10D002DAC2B /* IconPickerViewController.swift */; };
 		7B29529E1D2A44A3000B9D60 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B29529D1D2A44A3000B9D60 /* AppDelegate.swift */; };
 		7B2952A01D2A44A3000B9D60 /* ChecklistViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B29529F1D2A44A3000B9D60 /* ChecklistViewController.swift */; };
 		7B2952A31D2A44A3000B9D60 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7B2952A11D2A44A3000B9D60 /* Main.storyboard */; };
 		7B2952A51D2A44A3000B9D60 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7B2952A41D2A44A3000B9D60 /* Assets.xcassets */; };
-		7B2952A81D2A44A3000B9D60 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7B2952A61D2A44A3000B9D60 /* LaunchScreen.storyboard */; };
 		7B2952B01D2BA9AA000B9D60 /* ChecklistItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B2952AF1D2BA9AA000B9D60 /* ChecklistItem.swift */; };
 		7B352B1E1D2CF14E00A0488B /* ItemDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B352B1D1D2CF14E00A0488B /* ItemDetailViewController.swift */; };
 		7B352B201D2E7D5A00A0488B /* AllListsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B352B1F1D2E7D5A00A0488B /* AllListsViewController.swift */; };
@@ -21,12 +21,12 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0DD18FE11EA4A10D002DAC2B /* IconPickerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IconPickerViewController.swift; sourceTree = "<group>"; };
 		7B29529A1D2A44A3000B9D60 /* Checklists.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Checklists.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B29529D1D2A44A3000B9D60 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		7B29529F1D2A44A3000B9D60 /* ChecklistViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = ChecklistViewController.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		7B2952A21D2A44A3000B9D60 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		7B2952A41D2A44A3000B9D60 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		7B2952A71D2A44A3000B9D60 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		7B2952A91D2A44A3000B9D60 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7B2952AF1D2BA9AA000B9D60 /* ChecklistItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChecklistItem.swift; sourceTree = "<group>"; };
 		7B352B1D1D2CF14E00A0488B /* ItemDetailViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = ItemDetailViewController.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -62,6 +62,7 @@
 				7B29529F1D2A44A3000B9D60 /* ChecklistViewController.swift */,
 				7B352B1D1D2CF14E00A0488B /* ItemDetailViewController.swift */,
 				7B352B231D2E921D00A0488B /* ListDetailViewController.swift */,
+				0DD18FE11EA4A10D002DAC2B /* IconPickerViewController.swift */,
 			);
 			name = ViewControllers;
 			sourceTree = "<group>";
@@ -79,7 +80,6 @@
 		0D8F046C1E9E246300B88D55 /* Storyboard */ = {
 			isa = PBXGroup;
 			children = (
-				7B2952A61D2A44A3000B9D60 /* LaunchScreen.storyboard */,
 				7B2952A11D2A44A3000B9D60 /* Main.storyboard */,
 			);
 			name = Storyboard;
@@ -143,7 +143,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0800;
-				LastUpgradeCheck = 0800;
+				LastUpgradeCheck = 0830;
 				ORGANIZATIONNAME = Razeware;
 				TargetAttributes = {
 					7B2952991D2A44A3000B9D60 = {
@@ -175,7 +175,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7B2952A81D2A44A3000B9D60 /* LaunchScreen.storyboard in Resources */,
 				7B2952A51D2A44A3000B9D60 /* Assets.xcassets in Resources */,
 				7B2952A31D2A44A3000B9D60 /* Main.storyboard in Resources */,
 			);
@@ -191,6 +190,7 @@
 				7B2952A01D2A44A3000B9D60 /* ChecklistViewController.swift in Sources */,
 				7B352B241D2E921D00A0488B /* ListDetailViewController.swift in Sources */,
 				7B352B1E1D2CF14E00A0488B /* ItemDetailViewController.swift in Sources */,
+				0DD18FE21EA4A10D002DAC2B /* IconPickerViewController.swift in Sources */,
 				7B352B221D2E881B00A0488B /* Checklist.swift in Sources */,
 				7B2952B01D2BA9AA000B9D60 /* ChecklistItem.swift in Sources */,
 				7B352B261D2F908500A0488B /* DataModel.swift in Sources */,
@@ -208,14 +208,6 @@
 				7B2952A21D2A44A3000B9D60 /* Base */,
 			);
 			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
-		7B2952A61D2A44A3000B9D60 /* LaunchScreen.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				7B2952A71D2A44A3000B9D60 /* Base */,
-			);
-			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -236,8 +228,10 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -283,8 +277,10 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";

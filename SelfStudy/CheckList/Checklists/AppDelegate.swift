@@ -7,9 +7,10 @@
 //
 
 import UIKit
+import UserNotifications
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
     
     // Properties
     var window: UIWindow?
@@ -23,6 +24,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let navigationController = window!.rootViewController as! UINavigationController
         let controller = navigationController.viewControllers[0] as! AllListsViewController
         controller.dataModel = dataModel
+        
+        let center = UNUserNotificationCenter.current()
+        center.delegate = self
         
         return true
     }
@@ -48,6 +52,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         saveData()
     }
     
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                willPresent notification: UNNotification,
+                                withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        
+        print("Received local notification \(notification)")
+    }
     
     // MARK: - Others Method
     

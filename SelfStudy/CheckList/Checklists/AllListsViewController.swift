@@ -8,17 +8,28 @@
 
 import UIKit
 
-class AllListsViewController: UITableViewController, ListDetailViewControllerDelegate {
+class AllListsViewController: UITableViewController, ListDetailViewControllerDelegate, UINavigationControllerDelegate {
     
     // Properties
     var dataModel: DataModel!
     
-    
     // MARK: - View Controller Life Cycle
-    
     override func viewDidLoad() {
-        
         super.viewDidLoad()
+        navigationController?.delegate = self
+        
+        let index = dataModel.indexOfSelectedChecklist
+        
+        if index >= 0 && index < dataModel.lists.count {
+            let checkList = dataModel.lists[index]
+            performSegue(withIdentifier: "ShowChecklist", sender: checkList)
+        }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        tableView.reloadData()
     }
     
     
@@ -47,7 +58,7 @@ extension AllListsViewController {
             tableView.dequeueReusableCell(withIdentifier: cellIdentifier) {
             return cell
         } else {
-            return UITableViewCell(style: .default,
+            return UITableViewCell(style: .subtitle,
                                    reuseIdentifier: cellIdentifier)
         }
     }
@@ -63,6 +74,17 @@ extension AllListsViewController {
         
         let checklist = dataModel.lists[indexPath.row]
         cell.textLabel!.text = checklist.name
+        
+        let count = checklist.countUncheckedItems()
+        if checklist.items.count == 0 {
+            cell.detailTextLabel!.text = "No Items"
+        } else if count == 0 {
+            cell.detailTextLabel!.text = "All Done!"
+        } else {
+            cell.detailTextLabel!.text = "\(checklist.countUncheckedItems()) Remaining"
+        }
+        
+        cell.imageView!.image = UIImage(named: checklist.iconName)
         cell.accessoryType = .detailDisclosureButton
         
         return cell
@@ -70,6 +92,9 @@ extension AllListsViewController {
     
     override func tableView(_ tableView: UITableView,
                             didSelectRowAt indexPath: IndexPath) {
+        
+        dataModel.indexOfSelectedChecklist = indexPath.row
+        
         let checklist = dataModel.lists[indexPath.row]
         performSegue(withIdentifier: "ShowChecklist", sender: checklist)
     }
@@ -102,6 +127,7 @@ extension AllListsViewController {
 }
 
 // MARK: - ListDetailViewControllerDelegate
+
 extension AllListsViewController {
     
     func listDetailViewControllerDidCancel(
@@ -111,24 +137,30 @@ extension AllListsViewController {
     
     func listDetailViewController(_ controller: ListDetailViewController,
                                   didFinishAdding checklist: Checklist) {
-        let newRowIndex = dataModel.lists.count
         dataModel.lists.append(checklist)
-        
-        let indexPath = IndexPath(row: newRowIndex, section: 0)
-        let indexPaths = [indexPath]
-        tableView.insertRows(at: indexPaths, with: .automatic)
+        dataModel.sortChecklists()
+        tableView.reloadData()
         
         dismiss(animated: true, completion: nil)
     }
     
     func listDetailViewController(_ controller: ListDetailViewController,
                                   didFinishEditing checklist: Checklist) {
-        if let index = dataModel.lists.index(of: checklist) {
-            let indexPath = IndexPath(row: index, section: 0)
-            if let cell = tableView.cellForRow(at: indexPath) {
-                cell.textLabel!.text = checklist.name
-            }
-        }
+        dataModel.sortChecklists()
+        tableView.reloadData()
+        
         dismiss(animated: true, completion: nil)
+    }
+}
+
+extension AllListsViewController {
+    
+    func navigationController(_ navigationController: UINavigationController,
+                              willShow viewController: UIViewController,
+                              animated: Bool) {
+        
+        if viewController === self {
+            dataModel.indexOfSelectedChecklist = -1
+        }
     }
 }

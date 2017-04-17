@@ -34,6 +34,7 @@ class ChecklistViewController: UITableViewController, ItemDetailViewControllerDe
         } else {
             label.text = ""
         }
+        label.textColor = view.tintColor
     }
     
     // MARK: - Segue
@@ -53,6 +54,8 @@ class ChecklistViewController: UITableViewController, ItemDetailViewControllerDe
             }
         }
     }
+    
+    // MARK: - Others
 }
 
 
