@@ -21,7 +21,7 @@ class func animate(withDuration duration: TimeInterval, delay: TimeInterval, usi
 --- | ---
 withDuration | 애니메이션의 지속시간
 delay | 애니메이션이 시작되기 전 UIKit이 wait하는 시간
-usingSpringWithDamping | ![스프링 애니메이션](https://github.com/dabu5135/Dabu/blob/master/SelfStudy/Animation/image/spring.png) 그림과 같이 스프링처럼 튕기는? 정도를 위한 값이다. 0.0에서 1.0의 값을 가지며 0으로 갈 수록 많이 튕기는 애니메이션이 된다.
+usingSpringWithDamping | ![스프링 애니메이션](image/spring.png) 그림과 같이 스프링처럼 튕기는? 정도를 위한 값이다. 0.0에서 1.0의 값을 가지며 0으로 갈 수록 많이 튕기는 애니메이션이 된다.
 initialSpringVelocity | ??
 options | 커스터마이징 가능한 옵션 값
 animations | 애니메이션이 정의되는 클로저(@escaping, 즉 탈출클로저) 
