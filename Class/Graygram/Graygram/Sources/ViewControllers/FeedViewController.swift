@@ -9,9 +9,7 @@
 import UIKit
 import Alamofire
 
-
 let feedURL = "https://api.graygram.com/feed"
-
 let collectionViewCellIdentifier = "cardCell"
 
 final class FeedViewController: UIViewController {
@@ -51,17 +49,17 @@ final class FeedViewController: UIViewController {
         case .success(let value):
           guard let json = value as? [String : Any] else { return }
           guard let jsonArray = json["data"] as? [[String : Any]] else { return }
-          let newPosts = [Post](JSONArray: jsonArray)
-          self.posts = newPosts
           
-          DispatchQueue.main.async { _ in
-            self.collectionView.reloadData()
-          }
+          let newPosts = [Post](JSONArray: jsonArray)
+          // Array<Post>.init(JSONArray: jsonArray) 와 동일
+          
+          self.posts = newPosts
+          self.collectionView.reloadData()
           
         case .failure(let error):
           print(error)
         }
-      }
+    }
   }
   
 }
@@ -79,11 +77,15 @@ extension FeedViewController: UICollectionViewDataSource {
   }
   
   func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    let cell = collectionView.dequeueReusableCell(
+      withReuseIdentifier: collectionViewCellIdentifier,
+      for: indexPath
+      ) as! PostCardCell
     
-    return UICollectionViewCell()
+    cell.configure(post: self.posts[indexPath.item])
+    return cell
   }
 }
-
 
 // MARK: - UICollectionViewDelegateFlowLayout
 extension FeedViewController: UICollectionViewDelegateFlowLayout {
@@ -91,7 +93,7 @@ extension FeedViewController: UICollectionViewDelegateFlowLayout {
   func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout,
                       sizeForItemAt indexPath: IndexPath) -> CGSize {
     
-    let width = collectionView.frame.size.width
-    return CGSize(width: width, height: width)
+    let post = self.posts[indexPath.item]
+    return PostCardCell.size(width: collectionView.frame.size.width, post: post)
   }
 }

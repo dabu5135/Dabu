@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0D0222231EE8251700AF94AD /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D0222221EE8251700AF94AD /* User.swift */; };
+		0D7942BB1EE8394C00BF0FA7 /* String+Size.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7942BA1EE8394C00BF0FA7 /* String+Size.swift */; };
 		0D7BB3791EDEE544008524E6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0D7BB36F1EDEE544008524E6 /* Assets.xcassets */; };
 		0D7BB37A1EDEE544008524E6 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0D7BB3701EDEE544008524E6 /* LaunchScreen.storyboard */; };
 		0D7BB37C1EDEE544008524E6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7BB3751EDEE544008524E6 /* AppDelegate.swift */; };
@@ -17,7 +19,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0D0222221EE8251700AF94AD /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		0D085CAF1EDEE4EA00704BB5 /* Graygram.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Graygram.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0D7942BA1EE8394C00BF0FA7 /* String+Size.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+Size.swift"; sourceTree = "<group>"; };
 		0D7BB36F1EDEE544008524E6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0D7BB3711EDEE544008524E6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		0D7BB3751EDEE544008524E6 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -42,6 +46,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0D0222211EE815C100AF94AD /* Storybaord */ = {
+			isa = PBXGroup;
+			children = (
+				0D7BB3701EDEE544008524E6 /* LaunchScreen.storyboard */,
+			);
+			name = Storybaord;
+			sourceTree = "<group>";
+		};
 		0D085CA61EDEE4EA00704BB5 = {
 			isa = PBXGroup;
 			children = (
@@ -60,6 +72,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		0D7942B91EE838F800BF0FA7 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				0D7942BA1EE8394C00BF0FA7 /* String+Size.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
 		0D7BB36D1EDEE544008524E6 /* Graygram */ = {
 			isa = PBXGroup;
 			children = (
@@ -74,7 +94,7 @@
 			isa = PBXGroup;
 			children = (
 				0D7BB36F1EDEE544008524E6 /* Assets.xcassets */,
-				0D7BB3701EDEE544008524E6 /* LaunchScreen.storyboard */,
+				0D0222211EE815C100AF94AD /* Storybaord */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -83,6 +103,7 @@
 			isa = PBXGroup;
 			children = (
 				0D7BB3751EDEE544008524E6 /* AppDelegate.swift */,
+				0D7942B91EE838F800BF0FA7 /* Utils */,
 				0D7BB37F1EDEE617008524E6 /* Models */,
 				0D7BB3801EDEE617008524E6 /* ViewControllers */,
 				0D7BB3821EDEE617008524E6 /* Views */,
@@ -102,6 +123,7 @@
 			isa = PBXGroup;
 			children = (
 				0DCC83971EDEEEFF00049A21 /* Post.swift */,
+				0D0222221EE8251700AF94AD /* User.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -262,8 +284,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				0DCC83981EDEEEFF00049A21 /* Post.swift in Sources */,
+				0D7942BB1EE8394C00BF0FA7 /* String+Size.swift in Sources */,
 				0DCC839A1EDF01A400049A21 /* PostCardCell.swift in Sources */,
 				0DCC83961EDEEC5100049A21 /* FeedViewController.swift in Sources */,
+				0D0222231EE8251700AF94AD /* User.swift in Sources */,
 				0D7BB37C1EDEE544008524E6 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -379,6 +403,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 600B1663F0942FA0622D474A /* Pods-Graygram.debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "$(SRCROOT)/Graygram/Supporting Fiels/Info.plist";
@@ -394,6 +419,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 2B339CE9E2A03772A19B5735 /* Pods-Graygram.release.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "$(SRCROOT)/Graygram/Supporting Fiels/Info.plist";

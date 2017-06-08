@@ -8,5 +8,7 @@ target 'Graygram' do
   # Pods for Graygram
 	pod 'Alamofire', '~> 4.4'
   pod 'ObjectMapper'
+  pod 'ManualLayout'
+  pod 'Kingfisher'
   
 end
