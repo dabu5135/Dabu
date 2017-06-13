@@ -67,6 +67,7 @@ class ViewController: UIViewController {
   let status = UIImageView(image: UIImage(named: "banner"))
   let label = UILabel()
   let messages = ["Connecting ...", "Authorizing ...", "Sending credentials ...", "Failed"]
+  let info = UILabel()
   
   var statusPosition = CGPoint.zero
   
@@ -74,6 +75,10 @@ class ViewController: UIViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
+    
+    
+    username.delegate = self
+    password.delegate = self
     
     //set up the UI
     loginButton.layer.cornerRadius = 8.0
@@ -95,6 +100,14 @@ class ViewController: UIViewController {
     status.addSubview(label)
     
     statusPosition = status.center
+    
+    info.frame = CGRect(x: 0.0, y: loginButton.center.y + 60.0 , width: view.frame.size.width, height: 30.0)
+    info.backgroundColor = .clear
+    info.font = UIFont(name: "HelveticaNeue", size: 12.0)
+    info.textAlignment = .center
+    info.textColor = .white
+    info.text = "Tap on a field and enter username and password"
+    view.insertSubview(info, belowSubview: loginButton)
   }
   
   override func viewWillAppear(_ animated: Bool) {
@@ -106,11 +119,18 @@ class ViewController: UIViewController {
 //    flyRight.toValue = view.bounds.width/2
     flyRight.duration = 0.5
     flyRight.fillMode = kCAFillModeBoth
+    flyRight.delegate = self
+    flyRight.setValue("form", forKey: "name")
     
+    flyRight.setValue(heading.layer, forKey: "layer")
     heading.layer.add(flyRight, forKey: nil)
+    
     flyRight.beginTime = CACurrentMediaTime() + 0.3
+    flyRight.setValue(username.layer, forKey: "layer")
     username.layer.add(flyRight, forKey: nil)
+    
     flyRight.beginTime = CACurrentMediaTime() + 0.5
+    flyRight.setValue(password.layer, forKey: "layer")
     password.layer.add(flyRight, forKey: nil)
     
     let cloudAnimation = CABasicAnimation(keyPath: "opacity")
@@ -164,6 +184,19 @@ class ViewController: UIViewController {
     animateCloud(cloud2)
     animateCloud(cloud3)
     animateCloud(cloud4)
+    
+    let flyLeft = CABasicAnimation(keyPath: "position.x")
+    flyLeft.fromValue = info.layer.position.x + view.frame.size.width
+    flyLeft.toValue = info.layer.position.x
+    flyLeft.duration = 5.0
+    info.layer.add(flyLeft, forKey: "infoappear")
+    
+    let fadeLabelIn = CABasicAnimation(keyPath: "opacity")
+    fadeLabelIn.fromValue = 0.2
+    fadeLabelIn.toValue = 1.0
+    fadeLabelIn.duration = 4.5
+    info.layer.add(fadeLabelIn, forKey: "fadein")
+    
   }
   
   func showMessage(index: Int) {
@@ -275,12 +308,39 @@ class ViewController: UIViewController {
     )
   }
   
-  // MARK: UITextFieldDelegate
-  
+}
+
+// MARK: - UITextFieldDelegate
+extension ViewController: UITextFieldDelegate {
   func textFieldShouldReturn(_ textField: UITextField) -> Bool {
     let nextField = (textField === username) ? password : username
     nextField?.becomeFirstResponder()
     return true
   }
   
+  func textFieldDidBeginEditing(_ textField: UITextField) {
+    let animationKeys = info.layer.animationKeys()
+    print(animationKeys!)
+    info.layer.removeAnimation(forKey: "infoappear")
+  }
+}
+
+// MARK: - CAAnimation Delegate
+extension ViewController: CAAnimationDelegate {
+  
+  func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
+    print("animation Did Stop")
+    
+    guard let name = anim.value(forKey: "name") as? String else { return }
+    if name == "form" {
+      let layer = anim.value(forKey: "layer") as? CALayer
+      anim.setValue(nil, forKey: "layer")
+      
+      let pulse = CABasicAnimation(keyPath: "transform.scale")
+      pulse.fromValue = 1.25
+      pulse.toValue = 1.0
+      pulse.duration = 0.25
+      layer?.add(pulse, forKey: nil)
+    }
+  }
 }
