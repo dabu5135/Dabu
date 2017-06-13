@@ -26,4 +26,5 @@ extension String {
     )
     return CGSize(width: ceil(boundingRect.width), height: ceil(boundingRect.height))
   }
+  
 }

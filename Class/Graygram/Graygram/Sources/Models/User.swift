@@ -15,7 +15,6 @@ struct User: Mappable {
   var photoID: String?
   
   init?(map: Map) {
-    
   }
   
   mutating func mapping(map: Map) {

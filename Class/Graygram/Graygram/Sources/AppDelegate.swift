@@ -7,20 +7,29 @@
 //
 
 import UIKit
-import Alamofire
+
+import Kingfisher
+import ManualLayout
+import SnapKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
   var window: UIWindow?
 
-
-  func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+  func application(
+    _ application: UIApplication,
+    didFinishLaunchingWithOptions
+    launchOptions: [UIApplicationLaunchOptionsKey: Any]?
+    ) -> Bool {
     
     let window = UIWindow(frame: UIScreen.main.bounds)
     window.backgroundColor = .white
     window.makeKeyAndVisible()
-    window.rootViewController = FeedViewController()
+    
+    let feedViewController = FeedViewController()
+    let navigationController = UINavigationController(rootViewController: feedViewController)
+    window.rootViewController = navigationController
     
     self.window = window
     
