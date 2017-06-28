@@ -8,6 +8,8 @@
 
 import UIKit
 
+import Alamofire
+
 final class PostCardCell: UICollectionViewCell {
   
   fileprivate enum Metric {
@@ -52,6 +54,8 @@ final class PostCardCell: UICollectionViewCell {
   /// 사용자 메시지 레이블
   fileprivate let messageLabel = UILabel()
   
+  fileprivate var post: Post?
+  
   // MARK: Initializer
   // 1. 생성자
   override init(frame: CGRect) {
@@ -70,12 +74,15 @@ final class PostCardCell: UICollectionViewCell {
 //    #imageLiteral(resourceName: "icon-like") image literal
     likeButton.setBackgroundImage(#imageLiteral(resourceName: "icon-like"), for: .normal)
     likeButton.setBackgroundImage(#imageLiteral(resourceName: "icon-like-selected"), for: .selected)
-    likeCountLabel.font = Font.likeCountLabel
+    likeButton.addTarget(
+      self,
+      action: #selector(likeButtonDidTap(_:)),
+      for: .touchUpInside
+    )
     
+    likeCountLabel.font = Font.likeCountLabel
     messageLabel.font = Font.messageLabel // graygram API에선 messageLabel이 Regular(포토샾)로 넘어온다.
     messageLabel.numberOfLines = 3
-//    messageLabel.backgroundColor = .blue
-    
     pictureView.backgroundColor = .white
     
     // 2. addSubview하는 곳
@@ -96,9 +103,11 @@ final class PostCardCell: UICollectionViewCell {
   // 2. 설정
   // 아래의 configure 메소드안에선 레이아웃과 관련된 작업은 곤란하다!
   func configure(post: Post) {
+    self.post = post
     avatarView.setImage(photoID: post.user.photoID, size: .tiny)
     usernameLabel.text = post.user.username
     pictureView.setImage(photoID: post.photoID, size: .large)
+    likeButton.isSelected = post.isLiked
     likeCountLabel.text = "\(post.likeCount ?? 0)명이 좋아합니다."
     messageLabel.text = post.message
     
@@ -195,4 +204,80 @@ final class PostCardCell: UICollectionViewCell {
     messageLabel.width = contentView.width - Metric.messageLabelRightPadding - messageLabel.left
     messageLabel.sizeToFit()
   }
+  
+  // MARK: - Action
+  
+  func likeButtonDidTap(_ sender: UIButton) {
+    guard let post = self.post else { return }
+    let urlString = "https://api.graygram.com/posts/\(post.id!)/likes"
+
+    // 먼저 성공을 가정하고 UI의 변경을 우선하고 failure시 다시 UI재변경
+    if !likeButton.isSelected {
+      var newPost = post
+      newPost.isLiked = true
+      newPost.likeCount! += 1
+      self.configure(post: newPost)
+      
+      NotificationCenter.default.post(
+        name: .postDidLike,
+        object: self,
+        userInfo: ["postID": post.id!]
+      )
+      
+      Alamofire
+        .request(urlString, method: .post)
+        .validate(statusCode: 200..<400)
+        .responseData { response in
+          switch response.result {
+          case .success:
+            print("좋아요 성공 \(post.id!)")
+          case .failure:
+            if response.response?.statusCode != 409 {
+              print("좋아요 실패 \(post.id!))")
+              self.configure(post: post)
+              
+              NotificationCenter.default.post(
+                name: .postDidUnLike,
+                object: self,
+                userInfo: ["postID": post.id!]
+              )
+            }
+          }
+        }
+    } else {
+      var newPost = post
+      newPost.isLiked = false
+      newPost.likeCount! -= 1
+      self.configure(post: newPost)
+      
+      NotificationCenter.default.post(
+        name: .postDidUnLike,
+        object: self,
+        userInfo: ["postID": post.id!]
+      )
+      
+      Alamofire
+        .request(urlString, method: .delete)
+        .validate(statusCode: 200..<400)
+        .responseData { response in
+          switch response.result {
+          case .success:
+            print("좋아요 취소 성공 \(post.id!)")
+      
+          case .failure:
+            if response.response?.statusCode != 409 {
+              print("좋아요 취소 실패 \(post.id!))")
+              self.configure(post: post)
+              
+              NotificationCenter.default.post(
+                name: .postDidLike,
+                object: self,
+                userInfo: ["postID": post.id!]
+              )
+            }
+          }
+        }
+    }
+  }
+  
 }

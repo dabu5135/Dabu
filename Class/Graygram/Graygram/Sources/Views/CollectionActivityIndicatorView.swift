@@ -20,7 +20,10 @@ final class CollectionActivityIndicatorView: UICollectionReusableView {
   // MARK: Layout
   override func layoutSubviews() {
     super.layoutSubviews()
-    activityIndicatorView.centerX = self.width / 2.0
-    activityIndicatorView.centerY = self.height / 2.0
+//    activityIndicatorView.centerX = self.width / 2.0
+    activityIndicatorView.centerX = self.centerX
+//    activityIndicatorView.centerY = self.height / 2.0
+    activityIndicatorView.centerY = self.centerY
+    
   }
 }
