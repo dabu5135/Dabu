@@ -1,14 +1,5 @@
-//
-//  PostCardCell.swift
-//  Graygram
-//
-//  Created by Dabu on 2017. 5. 31..
-//  Copyright © 2017년 Dabu. All rights reserved.
-//
 
 import UIKit
-
-import Alamofire
 
 final class PostCardCell: UICollectionViewCell {
   
@@ -102,7 +93,7 @@ final class PostCardCell: UICollectionViewCell {
   // MARK: Configure
   // 2. 설정
   // 아래의 configure 메소드안에선 레이아웃과 관련된 작업은 곤란하다!
-  func configure(post: Post) {
+  func configure(post: Post, isMessageTrimmed: Bool = true) {
     self.post = post
     avatarView.setImage(photoID: post.user.photoID, size: .tiny)
     usernameLabel.text = post.user.username
@@ -110,13 +101,13 @@ final class PostCardCell: UICollectionViewCell {
     likeButton.isSelected = post.isLiked
     likeCountLabel.text = "\(post.likeCount ?? 0)명이 좋아합니다."
     messageLabel.text = post.message
-    
+    messageLabel.numberOfLines = isMessageTrimmed ? 3 : 0
     setNeedsLayout()
   }
 
   // MARK: Size
   // 3. 크기
-  class func size(width: CGFloat, post: Post) -> CGSize {
+  class func size(width: CGFloat, post: Post, isMessageTrimmed: Bool = true) -> CGSize {
     
     var height: CGFloat = 0
     
@@ -147,7 +138,7 @@ final class PostCardCell: UICollectionViewCell {
       height += message.size(
         width: messageLabelWidth,
         font: Font.messageLabel,
-        numberOfLines: 3
+        numberOfLines: isMessageTrimmed ? 3 : 0
         ).height
     }
     
@@ -172,7 +163,6 @@ final class PostCardCell: UICollectionViewCell {
       contentView.width - Metric.usernameLabelRightPadding - usernameLabel.left,
       usernameLabel.width
     )
-    
     usernameLabel.centerY = avatarView.centerY //    usernameLabel.center.y = avatarView.center.y
     
     pictureView.width = contentView.width
@@ -194,13 +184,11 @@ final class PostCardCell: UICollectionViewCell {
     
     messageLabel.top = likeButton.bottom + Metric.messageLabelTopPadding
     messageLabel.left = Metric.messageLabelLeftPadding
-    
     /*
      텍스트의 줄에 맞춰 사이즈와 width를 잡는 순서
      한 줄 : sizeToFit() -> width
      여러 줄 : width -> sizeToFit()
      */
-    
     messageLabel.width = contentView.width - Metric.messageLabelRightPadding - messageLabel.left
     messageLabel.sizeToFit()
   }
@@ -209,7 +197,6 @@ final class PostCardCell: UICollectionViewCell {
   
   func likeButtonDidTap(_ sender: UIButton) {
     guard let post = self.post else { return }
-    let urlString = "https://api.graygram.com/posts/\(post.id!)/likes"
 
     // 먼저 성공을 가정하고 UI의 변경을 우선하고 failure시 다시 UI재변경
     if !likeButton.isSelected {
@@ -217,66 +204,15 @@ final class PostCardCell: UICollectionViewCell {
       newPost.isLiked = true
       newPost.likeCount! += 1
       self.configure(post: newPost)
+      PostService.like(postID: post.id)
       
-      NotificationCenter.default.post(
-        name: .postDidLike,
-        object: self,
-        userInfo: ["postID": post.id!]
-      )
-      
-      Alamofire
-        .request(urlString, method: .post)
-        .validate(statusCode: 200..<400)
-        .responseData { response in
-          switch response.result {
-          case .success:
-            print("좋아요 성공 \(post.id!)")
-          case .failure:
-            if response.response?.statusCode != 409 {
-              print("좋아요 실패 \(post.id!))")
-              self.configure(post: post)
-              
-              NotificationCenter.default.post(
-                name: .postDidUnLike,
-                object: self,
-                userInfo: ["postID": post.id!]
-              )
-            }
-          }
-        }
     } else {
       var newPost = post
       newPost.isLiked = false
       newPost.likeCount! -= 1
       self.configure(post: newPost)
       
-      NotificationCenter.default.post(
-        name: .postDidUnLike,
-        object: self,
-        userInfo: ["postID": post.id!]
-      )
-      
-      Alamofire
-        .request(urlString, method: .delete)
-        .validate(statusCode: 200..<400)
-        .responseData { response in
-          switch response.result {
-          case .success:
-            print("좋아요 취소 성공 \(post.id!)")
-      
-          case .failure:
-            if response.response?.statusCode != 409 {
-              print("좋아요 취소 실패 \(post.id!))")
-              self.configure(post: post)
-              
-              NotificationCenter.default.post(
-                name: .postDidLike,
-                object: self,
-                userInfo: ["postID": post.id!]
-              )
-            }
-          }
-        }
+      PostService.unlike(postID: post.id)
     }
   }
   

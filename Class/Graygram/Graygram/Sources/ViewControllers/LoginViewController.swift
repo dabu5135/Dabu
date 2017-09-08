@@ -1,14 +1,5 @@
-//
-//  LoginViewController.swift
-//  Graygram
-//
-//  Created by Dabu on 2017. 6. 14..
-//  Copyright © 2017년 Dabu. All rights reserved.
-//
 
 import UIKit
-
-import Alamofire
 
 final class LoginViewController: UIViewController {
   
@@ -19,7 +10,7 @@ final class LoginViewController: UIViewController {
   fileprivate let loginButton = UIButton()
   
   
-  // MARK: - View Controller Life Cycle
+  // MARK: - View Life Cycle
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -98,26 +89,19 @@ final class LoginViewController: UIViewController {
     sender.backgroundColor = .white
   }
   
-  // MARK: - Others
+  // MARK: - Login
   
   fileprivate func login(username: String, password: String) {
-    let urlString = "https://api.graygram.com/login/username"
-    let parameters: Parameters = [
-      "username": username,
-      "password": password,
-    ]
-    let headers: HTTPHeaders = [
-      "Accept": "application/json"
-    ]
     usernameTextField.isEnabled = false
     passwordTextField.isEnabled = false
     loginButton.isEnabled = false
     loginButton.alpha = 0.4
     
-    Alamofire
-      .request(urlString, method: .post, parameters: parameters, headers: headers)
-      .validate(statusCode: 200..<400)
-      .responseJSON { response in
+    AuthService.login(
+      username: username,
+      password: password) { [weak self] response in
+        guard let `self` = self else { return }
+        
         self.usernameTextField.isEnabled = true
         self.passwordTextField.isEnabled = true
         self.loginButton.isEnabled = true
@@ -144,6 +128,5 @@ final class LoginViewController: UIViewController {
         }
       }
   }
-  
   
 }

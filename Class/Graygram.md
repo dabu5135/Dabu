@@ -130,15 +130,18 @@ extension FeedViewController {
 ### 로그인 VC 구현
 
 - self.topLayoutGuide 에도 Snapkit이 익스텐션을 구현해 놓았다.
-```
+
+```swift
 make.top.equalTo(self.topLayoutGuide.snp.bottom).offset(30)
 ```
+
 - Snapkit은 체이닝이 가능하다!!! 
-```
+
+```swift
 make.left.right.height.equalTo(usernameTextField)
 ```
 
-```
+```swift
 if let  data = response.data,
 let json = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any],
 let errorInfo = json["error"] as? [String: Any],
@@ -155,7 +158,7 @@ switch field {
 ```
 위의 코드에서 너무 많은 옵셔널을 한 번에 바인딩하여 코드의 가독성이 떨어진다. DataResponse를 익스텐션하여 error, filed를 튜플로 반환하는 메소드를 추가하여 아래와 같이 코드의 가독성을 높이고 깔끔하게 만든다.
 
-```
+```swift
 extension DataResponse {
   func errorInfo() -> (field: String, message: String)? {
     guard let data = self.data,
@@ -170,7 +173,7 @@ extension DataResponse {
 ```
 아래와 같이 코드가 깔끔해졌다.!!
    
-```         
+```swift         
 if let errorInfo = response.errorInfo() {
     switch errorInfo.field {
     case "username":
@@ -185,7 +188,7 @@ if let errorInfo = response.errorInfo() {
 
 > UIResponder를 상속받은 컨트롤에 타겟과 액션메소드를 연결할 때, 해당 메소드를 fileprivate로 접근제한을 걸고 싶다면 _dynamic_ 키워드를 앞에 붙여 사용해야 한다. *fileprivat* 만 사용했을 경우 컴파일 에러가 난다.
 
-```
+```swift
 dynamic fileprivate func method() {
 	// do something...
 }
@@ -196,7 +199,7 @@ dynamic fileprivate func method() {
 - 탭바컨트롤러 추가
 - 이미지피커 추가 
 - Notification.Name 에 익스텐션으로 name을 추가
-- 
+
 
 
 ----
@@ -320,7 +323,7 @@ override func viewDidLayoutSubviews() {
     }
   }
 ```
-이미지를 크롭하기 위해선 현재 rootView로부터의 cropAreaView와 상대적인 좌표를 가져와야 한다. 이를 위해 **convert(to:from:)**메소드를 사용해 rect좌표를 가져온다. 이 좌표를 이용해 현재 image와 imageView의 비율을 계산하고 rect좌표에 적용하여 실제 이미지를 크롭하는 메소드인 **cgImage?.cropping(to:)**를 사용하여 이미지를 크롭한다. 
+이미지를 크롭하기 위해선 현재 rootView로부터의 cropAreaView와 상대적인 좌표를 가져와야 한다. 이를 위해 **convert(to:from:)** 메소드를 사용해 rect좌표를 가져온다. 이 좌표를 이용해 현재 image와 imageView의 비율을 계산하고 rect좌표에 적용하여 실제 이미지를 크롭하는 메소드인 **cgImage?.cropping(to:)** 를 사용하여 이미지를 크롭한다. 
 
 ```swift
 fileprivate func presentCropViewController(image: UIImage) {
@@ -1075,6 +1078,659 @@ FeedViewController의 셀을 반환해주는 메소드안에서 셀을 생성한
 
 # 6/28
 
+## - Network와 관련된 작업들을 따로 분리시키자.
+
+지금까지는 Network와 관련된 작업을 모두 해당 뷰 컨트롤러 또는 셀(뷰)에서 구현하였다. 지금은 앱의 규모가 작아 같은 코드가 중복되지는 않지만 차후 규모가 커질경우 같은 API를 중복해서 사용할 경우가 있을 수 있고, Network와 관련된 작업이 한 곳에 모여있지 않아 유지,보수하기도 힘들 것이다. 그리하여 network와 관련된 서비스를 모두 한 곳에 모아 추상화를 해준다.
+
+### 1. MappingError구현
+
+API요청에는 성공하였지만 받아온 response를 바탕으로 모델 생성에 실패했을 때는 이를 위한 Error가 구현되어 있지 않다. 이를 위해 MappingError라는 이름의 Error를 만들어 준다.
+
+```swift
+struct MappingError: Error {
+	// Do Something...
+}
+```
+
+### 2. APIServiceType 구현
+
+모든 API 주소에는 기본 베이스 url이 있다. (https://graygram.com) 여기에 스트링을 파라메터로 받아 전체 API주소를 반환해주는 함수를 APIServiceType이라는 프로토콜에 구현하고 이 프로토콜을 extension하여 프로토콜을 적용하는 클래스 또는 구조체가 함수를 구현할 필요없이 사용할 수 있게 해준다.
+
+```swift
+protocol APIServiceType {
+}
+
+extension APIServiceType {
+  
+  /// path를 가지고 urlString을 만들어서 반환합니다.
+  ///
+  /// - Parameter path: API path (e.g. /me)
+  /// - Returns: 완성된 urlString
+  static func url(_ path: String) -> String {
+    return "https://api.graygram.com" + path
+  }
+}
+```
+
+### 3. 본격적인 추상화 작업 시작
+
+모든 네트워킹과 관련된 작업들은 비동기로 실행된다. 그리하여 서비스를 실행하는 클래스에선 리퀘스트 요청후에 받아온 DataResponse를 파라메터로 받아 원하는 작업을 실행하는데 쓰일 콜백 클로저가 필요하다. 또한 콜백 클로저는 해당 함수를 탈출해 사용하므로 **@escaping**을 사용하여 명시적으로 탈출 클로저임을 알려주어야 한다. 
+
+```swift
+struct UserService: APIServiceType {
+  
+  static func me(_ completion: @escaping (DataResponse<User>) -> Void) {
+    let urlString = self.url("/me")
+    Alamofire.request(urlString)
+      .validate(statusCode: 200..<400)
+      .responseJSON { response in
+        switch response.result {
+        case .success(let value):
+          if let newModel = Mapper<User>().map(JSONObject: value) {
+          	// case 1 : 네트워크 요청에 성공하고 모델 생성에도 성공했을 경우
+            let newResponse = DataResponse(
+              request: response.request,
+              response: response.response,
+              data: response.data,
+              result: .success(newModel),
+              timeline: response.timeline
+            )
+            completion(newResponse)
+          } else {
+          	// case 2 : 네트워크 요청에는 성공했으나 모델 생성이 실패한 경우
+            let newResponse = DataResponse<User>(
+              request: response.request,
+              response: response.response,
+              data: response.data, 
+              result: .failure(MappingError()),
+              timeline: response.timeline
+            )
+            completion(newResponse)
+          }
+        case .failure(let error):
+	      	// case 3 : 네트워크 요청에 실패한 경우
+          let newResponse = DataResponse<User>(
+            request: response.request,
+            response: response.response,
+            data: response.data,
+            result: .failure(error), 
+            timeline: response.timeline
+          )
+          completion(newResponse)
+        }
+    }
+  }
+
+}
+```
+
+위으 코드는 Alamofire를 이용해 리퀘스트를 보내고 JSON을 받아 각 케이스에 맞게 DataResponse를 만들어 컴플리션 클로저에 담아 호출하는 부분이다. 각 케이스(1,2,3)별로 각각 다른 리스폰스를 생성해야 하므로 리스폰스를 각 케이스마다 생성해주었다. 
+
+_여기서 제네릭과 관련하여 설명_
+
+하지만 리스폰스를 생성하는 코드가 중복되어 보기 좋지 않을 것 같다. 데이터타입을 제네릭으로 타입 매개변수를 받아 해당 데이터타입을 Value로 갖는 리스폰스를 반환해주는 메소드가 있다면 세 경우 모두 커버할 수 있을 것이다. 그리하여 아래와 같은 익스텐션을 이용해 구현한다.
+
+
+### 4. DataResponse+Map 구현
+
+```swift
+// DataResponse+Map.swift
+
+import Alamofire
+
+extension DataResponse {
+  
+  // DataResponse<Any> ----> map ----> DataResponse<User>
+  func flatMapResult<T>(_ transform: (Value) -> Result<T>) -> DataResponse<T> {
+    switch self.result {
+    case .success(let value):
+      return DataResponse<T>(
+        request: self.request,
+        response: self.response,
+        data: self.data,
+        result: transform(value),
+        timeline: self.timeline
+      )
+    case .failure(let error):
+      return DataResponse<T>(
+        request: self.request,
+        response: self.response,
+        data: self.data,
+        result: .failure(error),
+        timeline: self.timeline
+      )
+    }
+  }
+  
+  func mapResult<T>(_ transform: (Value) -> T) -> DataResponse<T> {
+    return self.flatMapResult { value in
+      return .success(transform(value))
+    }
+  }
+  
+}
+```
+ **DataResponse< Any >**에서 **DataResponse< 원하는타입 >**으로 변환해 준다. transform이라는 Value를 받고 Result< 원하는타입 >를 반환해주는 클로저를 파라메터로 받아 DataResponse의 result에 연관값에 할당할 목적으로 클로저를 호출하여 DataResponse를 반환해준다. 
+
+### 5. UserService 리팩토링
+
+```swift
+// UserService.swift
+
+import Alamofire
+import ObjectMapper
+
+struct UserService: APIServiceType {
+  
+  static func me(_ completion: @escaping (DataResponse<User>) -> Void) {
+    let urlString = self.url("/me")
+    Alamofire.request(urlString)
+      .validate(statusCode: 200..<400)
+      .responseJSON { response in
+        let newResponse = response.flatMapResult { json -> Result<User> in
+          if let user = Mapper<User>().map(JSONObject: json) {
+            return .success(user)
+          } else {
+            return .failure(MappingError())
+          }
+        }
+        completion(newResponse)
+    }
+  }
+
+}
+```
+위의 길었던 유저의 정보를 받아오는 메소드가 짧고 간단명료해졌다. 서버에서 받아온 JSON으로 User 모델을 생성한후 flatMapResult메소드를 사용하여 User를 갖는 DataResponse를 반환받아 컴플리션 콜백 클로저에 넘겨준다.
+
+```swift
+// SplashViewController.swift
+
+	.....
+
+override func viewDidAppear(_ animated: Bool) {
+    super.viewDidAppear(animated)
+    
+    UserService.me { response in
+      switch response.result {
+      case .success(let value):
+        print("내 프로필 정보 받아오기 성공 ⭕️ \(value)")
+        AppDelegate.instance?.presentMainScreen()
+        
+      case .failure(let error):
+        print("내 프로필 정보 받아오기 실패 ❌ \(error)")
+        AppDelegate.instance?.presentLoginScreen()
+      }
+    }
+  }
+```
+이 유저서비스를 사용하는 컨트롤러가 사용하는 부분이다. 콜백 클로저에 성공했을 시 User를 갖는  Value를 받을 수 있고 실패했을 시 Error를 받아 적절히 처리해 줄 수 있는 것을 볼 수 있다. 
+
+### 6. AuthService 리팩토링
+
+```swift
+// AuthService.swift
+
+import Alamofire
+
+struct AuthService: APIServiceType {
+  
+  static func login(
+    username: String,
+    password: String,
+    completion: @escaping (DataResponse<Void>) -> Void
+  ) {
+    
+    let urlString = self.url("/login/username")
+    let parameters: Parameters = [
+      "username": username,
+      "password": password,
+    ]
+    let headers: HTTPHeaders = [
+      "Accept": "application/json"
+    ]
+    
+    Alamofire
+      .request(urlString, method: .post, parameters: parameters, headers: headers)
+      .validate(statusCode: 200..<400)
+      .responseJSON { response in
+        let newResponse = response.mapResult { value -> Void in
+          return Void()
+        }
+        completion(newResponse)
+      }
+  }
+}
+```
+
+AuthService에선 유저의 로그인을 처리해준다. Graygram에선 서버에서 넘어온 response로 특별한 데이터를 생성할 필요가 없으므로 특정 데이터타입을 가진 Result를 만들어줄 필요가 없어서 Void타입을 가진 DataResponse를 만들어주었다. 위의 UserService와 마찬가지로 실제 사용을 위한 콜백클로저를 받아 새로만든 DataResponse를 넣어 호출시켜준다. 
+
+```swift
+// LoginViewController.swift
+
+	....
+
+fileprivate func login(username: String, password: String) {
+    usernameTextField.isEnabled = false
+    passwordTextField.isEnabled = false
+    loginButton.isEnabled = false
+    loginButton.alpha = 0.4
+    
+    AuthService.login(
+      username: username,
+      password: password) { response in
+        self.usernameTextField.isEnabled = true
+        self.passwordTextField.isEnabled = true
+        self.loginButton.isEnabled = true
+        self.loginButton.alpha = 1
+        
+        switch response.result {
+        case .success(let value):
+          print("로그인 성공 \(value)")
+          AppDelegate.instance?.presentMainScreen()
+        case .failure(let error):
+          print("로그인 실패❌ \(error)")
+          if let errorInfo = response.errorInfo() {
+            switch errorInfo.field {
+            case "username":
+              self.usernameTextField.becomeFirstResponder()
+              self.usernameTextField.backgroundColor = UIColor.red.withAlphaComponent(0.5)
+            case "password":
+              self.passwordTextField.becomeFirstResponder()
+              self.passwordTextField.backgroundColor = UIColor.red.withAlphaComponent(0.5)
+            default:
+              break
+            }
+          }
+        }
+      }
+  }
+```
+로그인 성공시 앱델리게이트를 가져와 메인탭바 컨트롤러를 띄워주고 로그인 실패했을 시 DataResponse 익스텐션으로 구현한 filed, message 필드를 튜플로 반환시켜주는 메소드를 이용해 UI를 적절히 업데이트하여 사용자에게 무엇이 잘못되었는지 알려준다. ( ex. 유저네임이 잘못되었을 시 유저 텍스트필드에 FirstResponder와 배경색깔을 바꾸어준다.)
+
+
+### 7. FeedService 리팩토링
+
+```swift
+// FeedService.swift
+
+import Alamofire
+import ObjectMapper
+
+struct FeedService: APIServiceType {
+  
+  static func feed(
+    paging: Paging,
+    completion: @escaping (DataResponse<Feed>) -> Void
+  ) {
+    
+    let urlString: String
+    
+    switch paging {
+    case .refresh:
+      urlString = self.url("/feed")
+    case .next(let nextURLString):
+      urlString = nextURLString
+    }
+    
+    Alamofire.request(urlString)
+      .validate(statusCode: 200..<400)
+      .responseJSON { response in
+        let newResponse = response.flatMapResult { json -> Result<Feed> in
+          if let feed = Mapper<Feed>().map(JSONObject: json) {
+            return .success(feed)
+          } else {
+            return .failure(MappingError())
+          }
+        }
+        completion(newResponse)
+      }
+  }
+}
+```
+Graygram에선 두 가지의 종류의 Feed요청이 있다. 하나는 새로고침, 다른 하나는 페이징요청이다. 이를 위해 **Paging**이라는 Enum을 만들어 파라메터로 받고 **Paging**의 각 케이스에 따라 urlString에 값을 할당한다. Alamofire를 이용해 리퀘스트를 요청하고 받아온 response로 Feed데이터 모델을 생성해주어 컴플리션 핸들러에 넘겨주어 사용하는 측에서 적절히 대응할 수 있게 만들었다.
+
+```swift
+// FeedViewController.swift
+
+// MARK: View Life Cycle
+  
+  override func viewDidLoad() {
+    super.viewDidLoad()
+    
+    ....
+   
+    fetchPosts(paging: .refresh)
+  }
+
+  ....
+
+ // MARK: Fetch
+  
+  fileprivate func fetchPosts(paging: Paging) {
+    guard !isLoading else { return }
+    self.isLoading = true
+    UIApplication.shared.isNetworkActivityIndicatorVisible = true
+    
+    FeedService.feed(paging: paging) { response in
+      self.isLoading = false
+      self.refreshControl.endRefreshing()
+      UIApplication.shared.isNetworkActivityIndicatorVisible = false
+      
+      switch response.result {
+      case .success(let feed):
+        let newPosts = feed.posts ?? []
+        switch paging {
+        case .refresh:
+          self.posts = newPosts
+        case .next:
+          self.posts += newPosts
+        }
+        self.nextURLString = feed.nextURLString
+        self.collectionView.reloadData()
+        
+      case .failure(let error):
+        print(error)
+      }
+    }
+    
+  }
+  
+  ....
+  
+  // MARK: - UIScrollView Delegate
+
+extension FeedViewController {
+  func scrollViewDidScroll(_ scrollView: UIScrollView) {
+    guard scrollView.contentSize.height > 0  else { return }
+    
+    let contentOffsetBottom = scrollView.contentOffset.y + scrollView.height
+    let isReachedBottom = contentOffsetBottom >= scrollView.contentSize.height - 300
+    if let nextURLString = self.nextURLString, isReachedBottom {
+      fetchPosts(paging: .next(nextURLString))
+    }
+  }
+  
+}
+```
+
+**isLoading**이라는 Bool값을 적절히 할당하여 무의미한 중복요청 문제를 해결하고 response의 result 케이스에 따라 성공했을 시 기존 posts데이터를 newPosts라는 상수에 복사하고 paging의 케이스에 따라 refresh일시 복사한 posts를 콜렉션뷰 데이터소스인 self.posts에 할당하고 더보기 요청일 시 기존 데이터소스에 newPosts를 덧붙여 준 다음 nextURLStirng에 넘어온 urlstring을 할당해주고 컬렉션뷰를 리로드 시켜준다.
+
+
+### 8. PostService ( Like, UnLike ) ~~Post~~
+
+```swift
+// PostService.swift
+
+import Alamofire
+import ObjectMapper
+
+struct PostService: APIServiceType {
+  
+  static func like(postID: Int, completion: ((DataResponse<Void>) -> Void)? = nil) {
+    NotificationCenter.default.post(
+      name: .postDidLike,
+      object: self,
+      userInfo: ["postID": postID]
+    )
+    
+    let urlString = self.url("/posts/\(postID)/likes")
+    
+    Alamofire
+      .request(urlString, method: .post)
+      .validate(statusCode: 200..<400)
+      .responseJSON { response in
+        if case .failure = response.result, response.response?.statusCode != 409 {
+          NotificationCenter.default.post(
+            name: .postDidUnLike,
+            object: self,
+            userInfo: ["postID": postID]
+          )
+        }
+        let newResponse = response.mapResult { _ in }
+          completion?(newResponse)
+      }
+  }
+  
+  static func unlike(postID: Int, completion: ((DataResponse<Void>) -> Void)? = nil) {
+    NotificationCenter.default.post(
+      name: .postDidUnLike,
+      object: self,
+      userInfo: ["postID": postID]
+    )
+    
+    let urlString = self.url("/posts/\(postID)/likes")
+    
+    Alamofire
+      .request(urlString, method: .delete)
+      .validate(statusCode: 200..<400)
+      .responseJSON { response in
+        if case .failure = response.result {
+          NotificationCenter.default.post(
+            name: .postDidLike,
+            object: self,
+            userInfo: ["postID": postID]
+          )
+        }
+        
+        let newResponse = response.mapResult { _ in }
+          completion?(newResponse)
+    }
+  }
+}
+
+```
+Graygram에선 빠른 UI업데이틀 위해 response의 결과에 따라 UI업데이트한다기 보다 먼저 UI를 업데이트하고 요청실패시 다시 UI를 바꾸어주는 방식을 따르고 있다. 예를 들어, like를 호출 시 성공했음을 가정하고 UI업데이트를 위해 노티를 포스트하고 실패했을 시 unLike를 위한 노티를 다시 포스트해준다. 마찬가지로 사용을 위한 콜백핸들러도 구현하였다. 
+
+> Q: Feed와 같이 오래걸리는 네트워크 요청은 UI를 먼저 업데이트하는 것이 좋은 방법인 것 같다. 하지만 like, UnLike같이 오래걸리지 않는 작업을 굳이 response의 케이스에 따라 업데이트하기 보다 먼저 UI업데이트를 하고 실패시 다시 되돌리는 로직이 과연 좋은 건지는 아직 모르겠다.... 전자의 방법으로 하면 노티를 뿌리는 작업이 한번으로 가능한데 후자는 노티를 두번이나 뿌리게 될 가능성이 있어 성능상 안좋지 않을까...
+
+----
+
+# 7/3 
+
+## - PostService 의 create 
+
+```swift
+// PoserService.swift
+
+....
+
+static func create(
+    image: UIImage,
+    message: String?,
+    progress: @escaping (Progress) -> Void,
+    completion: @escaping (DataResponse<Post>
+    ) -> Void) {
+    
+    let urlString = self.url("/posts")	
+    Alamofire.upload(
+      multipartFormData: { formData in
+        if let imageData = UIImageJPEGRepresentation(image, 1) { 
+          formData.append(
+            imageData,
+            withName: "photo",
+            fileName: "photo",
+            mimeType: "image/jpeg"    
+          )
+        }
+        if let textData = message?.data(using: .utf8) {
+          formData.append(
+            textData,
+            withName: "message"
+          )
+        }
+      },
+      to: urlString,
+      method: .post,
+      encodingCompletion: { encodingResult in
+        switch encodingResult {
+        case .success(let request, _, _):
+          print("인코딩 성공 \(request)")
+          request
+            .uploadProgress(closure: progress)
+            .validate(statusCode: 200..<400)
+            .responseJSON { response in
+              let newResponse = response.flatMapResult { json -> Result<Post> in
+                if let post = Mapper<Post>().map(JSONObject: json) {
+                  return .success(post)
+                } else {
+                  return .failure(MappingError())
+                }
+              }
+              completion(newResponse)
+              if let post = newResponse.result.value {
+                NotificationCenter.default.post(
+                  name: .postDidCreate,
+                  object: self,
+                  userInfo: ["post": post]
+                )
+              }
+          }
+        case .failure(let error):
+          print("인코딩 실패 \(error)")
+          let response = DataResponse<Post>(
+            request: nil,
+            response: nil,
+            data: nil,
+            result: .failure(error)
+          )
+          completion(response)
+        }
+      }
+    )
+  }
+
+```
+
+이전의 post메소드와 크게 다를 것은 없다. ProgressView를 위한 콜백클로저와 인코딩 콜백 클로저를 받고 인코딩 성공시 리퀘스트를 보낼 때  **uploadProgess(closur:)**에 파라메터로 받은 클로저를 넣는다. 이후에는 받아온 response에 따라 성공시 Post를 위한 DataResponse를 만들기 위해 flatMapResult를 사용하여 각 케이스에 대처한다. 
+
+
+> Q: 포스트가 성공했을 시 노티를 포스팅해주는 작업을 뷰 컨트롤러가 아닌 왜 PostService에서 하는가?
+> A: 수열님도 이 점이 애매하다고 한다. 허나 Post와 관련된 작업은 모두 PostService에서 하는 것이 맞는 것 같다고 하여 PostService에 구현하였다고 한다.
+
+
+```swift
+// PostEditViewController.swift
+
+....
+
+fileprivate dynamic func doneButtonItemDidTap(_ sender: UIBarButtonItem) {
+    self.setContorlsEnabled(false)
+    self.progressView.isHidden = false
+    
+    PostService.create(
+      image: self.image,
+      message: self.text,
+      progress: { [weak self] progress in
+        guard let `self` = self else { return }
+        self.progressView.progress = Float(progress.completedUnitCount) / Float(progress.totalUnitCount)
+      },
+      completion: { response in
+        switch response.result {
+        case .success:
+          self.dismiss(animated: true, completion: nil)
+        case .failure:
+          self.setContorlsEnabled(true)
+          self.progressView.isHidden = true
+        }
+      }
+    )
+  }
+```
+PostService에서 구현한 post를 실제 사용하는 부분이다. 사용자에게 진행과정을 보여주기 위해 progress 콜백 클로저에서 progressView의 progress를 적절히 업데이트 해주고. 컴플리션 콜백 클로저에 result에 따른 적절한 대응을 취하고 있다. 
 
 
 
+
+## - 단일 post에 대한 정보를 받아오는 post구현
+
+포스트의 viewMode가 tile일 시 탭하였을 때 자세한 정보를 보기 위하여 PostViewController를 구현하였는데 이 때 화면에 보여줄 단일 post를 정보를 받아오기 위한 기능을 추가한다.
+
+```swift
+// PostService.swift
+
+....
+
+static func post(id: Int, completion: @escaping (DataResponse<Post>) -> Void) {
+    
+    let urlString = self.url("/posts/\(id)")
+    
+    Alamofire
+      .request(urlString)
+      .validate(statusCode: 200..<400)
+      .responseJSON { response in
+        let newResponse = response.flatMapResult { json -> Result<Post> in
+          if let post = Mapper<Post>().map(JSONObject: json) {
+            return .success(post)
+          } else {
+            return .failure(MappingError())
+          }
+        }
+        completion(newResponse)
+      }
+  }
+```
+앞서 보았던 과정과 다를 것이 없어 설명은 생략한다.
+
+
+## - PostViewController구현
+
+<p align="center">
+<img src="image/703-1.png" width="300" height="400">
+</p>
+
+이 화면은 앞의 CardCell의 모양과 똑같다. 하여 새로운 View를 만들기 보단 기존의 CardCell을 재사용하여 컬렉션뷰(셀이 한개인.)로 구현하여 불필요한 중복을 피하고자 하였다. 
+앞의 FeedViewController에선 CardCell의 message의 제한을 3으로 두어 3줄 이상 넘어가는 텍스트는 *...*으로 나오게 하였지만, 상세화면인 이 PostViewController에선 모든 텍스트가 보일 수 있도록 셀의 높이를 재조정 해야 할 것이다. 그러기 위해선 CardCell의 size를 구하는 메소드들(**size(width:post:)**, **configure(post: Post)**)을 조정 해야 할 것이다. 
+
+## - PostCardCell의 size 메소드 리팩토링 
+
+```swift
+// PostCardCell.swift
+
+	....
+
+func configure(post: Post, isMessageTrimmed: Bool = true) {
+    self.post = post
+    avatarView.setImage(photoID: post.user.photoID, size: .tiny)
+    usernameLabel.text = post.user.username
+    pictureView.setImage(photoID: post.photoID, size: .large)
+    likeButton.isSelected = post.isLiked
+    likeCountLabel.text = "\(post.likeCount ?? 0)명이 좋아합니다."
+    messageLabel.text = post.message
+    messageLabel.numberOfLines = isMessageTrimmed ? 3 : 0
+    setNeedsLayout()
+  }
+
+  // MARK: Size
+  
+  class func size(width: CGFloat, post: Post, isMessageTrimmed: Bool = true) -> CGSize {
+    
+    var height: CGFloat = 0
+    
+    height += Metric.avatarViewTopPadding
+    height += Metric.avatarViewSize
+    
+    height += Metric.picktureViewTopPadding
+    height += width   // picture의 높이
+    
+    height += Metric.likeButtonTopPadding
+    height += Metric.likeButtonSize
+    
+    if let message = post.message, !message.isEmpty {
+      let messageLabelWidth = width - Metric.messageLabelLeftPadding - Metric.messageLabelRightPadding
+      height += Metric.messageLabelTopPadding
+      height += message.size(
+        width: messageLabelWidth,
+        font: Font.messageLabel,
+        numberOfLines: isMessageTrimmed ? 3 : 0
+        ).height
+    }
+    
+    return CGSize(width: width, height: height)
+  }
+
+```
+isMessageTrimmed란 Bool타입의 파라메터를 받아 true로 넘어올 시 기존의 방법대로 메시지를 라인 수를 3으로 제한을 두고 false가 넘어올 시 0으로 하여 제한을 없도록 해주어 셀의 높이를 그에 맞게 적절히 가져올 수 있게 하였다. 
+
+>  여기서 수열님은 isMessageTrimmed: Bool에 기본값을 두지 않아 기존에 이 메소드를 사용했던 모든 부분에서 적절히 isMessgaeTrimmed에 Bool값을 넘겨주었지만, 지금 상황에선 false로 사용하는 부분이 단일 포스트만을 보여주는 PostViewController에서만 사용하므로 기본값으로 true를 주어 나머지 부분에서는 변경하지 않아도 되도록 구현하였다. 
+
+> 컬렉션뷰는 셀의 사이즈가 컨텐츠사이즈보다 크지 않을 경우 자동으로 스크롤이 되지 않도록 되어있다. 하여 collectionView의 alwaysBounceVertical 또는 alwaysBounceHorizontal 에 true를 할당하여 스크롤이 되도록 하자.

@@ -1,10 +1,3 @@
-//
-//  String+Size.swift
-//  Graygram
-//
-//  Created by Dabu on 2017. 6. 7..
-//  Copyright © 2017년 Dabu. All rights reserved.
-//
 
 import UIKit
 

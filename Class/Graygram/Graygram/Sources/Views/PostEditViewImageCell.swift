@@ -19,7 +19,7 @@ final class PostEditViewImageCell: UITableViewCell {
   
   // MARK: Contfigure
   
-  internal func configure(image: UIImage) {
+  func configure(image: UIImage) {
     self.photoView.image = image
     setNeedsLayout()
   }

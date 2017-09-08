@@ -1,14 +1,5 @@
-//
-//  ViewController.swift
-//  Graygram
-//
-//  Created by Dabu on 2017. 5. 31..
-//  Copyright © 2017년 Dabu. All rights reserved.
-//
 
 import UIKit
-import Alamofire
-
 
 final class FeedViewController: UIViewController {
 
@@ -87,7 +78,7 @@ final class FeedViewController: UIViewController {
     super.viewDidLoad()
     
     self.view.addSubview(collectionView)
-    configurationCollectionView()
+    configureCollectionView()
     
     NotificationCenter.default.addObserver(
       self,
@@ -108,7 +99,7 @@ final class FeedViewController: UIViewController {
       object: nil
     )
     
-    fetchPosts()
+    fetchPosts(paging: .refresh)
   }
   
   override func viewDidLayoutSubviews() {
@@ -118,7 +109,7 @@ final class FeedViewController: UIViewController {
   
   // MARK: configure
   
-  fileprivate func configurationCollectionView() {
+  fileprivate func configureCollectionView() {
     
     collectionView.snp.makeConstraints { make in
       make.edges.equalToSuperview()
@@ -149,56 +140,37 @@ final class FeedViewController: UIViewController {
   }
   
   func refreshControlDidChangeValue() {
-    fetchPosts()
+    fetchPosts(paging: .refresh)
   }
   
   // MARK: Fetch
   
-  fileprivate func fetchPosts(isMore: Bool = false) {
+  fileprivate func fetchPosts(paging: Paging) {
     guard !isLoading else { return }
-    
-    let urlString: String
-    
-    if !isMore {
-      urlString = "https://api.graygram.com/feed"
-    } else if let nextURLString = self.nextURLString {
-      urlString = nextURLString
-    } else {
-      return
-    }
-    
     self.isLoading = true
     UIApplication.shared.isNetworkActivityIndicatorVisible = true
     
-    Alamofire.request(urlString)
-      .responseJSON { response in
-        self.isLoading = false
-        self.refreshControl.endRefreshing()
-        UIApplication.shared.isNetworkActivityIndicatorVisible = false
-        
-        switch response.result {
-        case .success(let value):
-          guard let json = value as? [String : Any] else { return }
-          guard let jsonArray = json["data"] as? [[String : Any]] else { return }
-          
-          let newPosts = [Post](JSONArray: jsonArray)
-          // Array<Post>.init(JSONArray: jsonArray) 와 동일
-          
-          if !isMore {
-            self.posts = newPosts
-          } else {
-            self.posts += newPosts
-          }
-
-          let paging = json["paging"] as? [String: Any]
-          self.nextURLString = paging?["next"] as? String
-          
-          self.collectionView.reloadData()
-          
-        case .failure(let error):
-          print(error)
+    FeedService.feed(paging: paging) { response in
+      self.isLoading = false
+      self.refreshControl.endRefreshing()
+      UIApplication.shared.isNetworkActivityIndicatorVisible = false
+      
+      switch response.result {
+      case .success(let feed):
+        let newPosts = feed.posts ?? []
+        switch paging {
+        case .refresh:
+          self.posts = newPosts
+        case .next:
+          self.posts += newPosts
         }
+        self.nextURLString = feed.nextURLString
+        self.collectionView.reloadData()
+      case .failure(let error):
+        print(error)
+      }
     }
+    
   }
   
   // MARK: Selector
@@ -246,21 +218,21 @@ extension FeedViewController: UICollectionViewDataSource {
   
   func numberOfSections(
     in collectionView: UICollectionView
-    ) -> Int {
+  ) -> Int {
     return 1
   }
   
   func collectionView(
     _ collectionView: UICollectionView,
     numberOfItemsInSection section: Int
-    ) -> Int {
+  ) -> Int {
     return self.posts.count
   }
   
   func collectionView(
     _ collectionView: UICollectionView,
     cellForItemAt indexPath: IndexPath
-    ) -> UICollectionViewCell {
+  ) -> UICollectionViewCell {
     switch self.viewMode {
     case .card:
       let cell = collectionView.dequeueReusableCell(
@@ -289,7 +261,7 @@ extension FeedViewController: UICollectionViewDataSource {
     viewForSupplementaryElementOfKind
     kind: String,
     at indexPath: IndexPath
-    ) -> UICollectionReusableView {
+  ) -> UICollectionReusableView {
     
     return collectionView.dequeueReusableSupplementaryView(
       ofKind: UICollectionElementKindSectionFooter,
@@ -308,7 +280,7 @@ extension FeedViewController: UICollectionViewDelegateFlowLayout {
     _ collectionView: UICollectionView,
     layout collectionViewLayout: UICollectionViewLayout,
     sizeForItemAt indexPath: IndexPath
-    ) -> CGSize {
+  ) -> CGSize {
     switch self.viewMode {
     case .card:
       let post = self.posts[indexPath.item]
@@ -323,7 +295,7 @@ extension FeedViewController: UICollectionViewDelegateFlowLayout {
     _ collectionView: UICollectionView,
     layout collectionViewLayout: UICollectionViewLayout,
     referenceSizeForFooterInSection section: Int
-    ) -> CGSize {
+  ) -> CGSize {
     
     // 더보기 요청이 불가능 한 경우 (마지막 페이지에 도달)
     if self.nextURLString == nil && !self.posts.isEmpty {
@@ -337,7 +309,7 @@ extension FeedViewController: UICollectionViewDelegateFlowLayout {
     _ collectionView: UICollectionView,
     layout collectionViewLayout: UICollectionViewLayout,
     insetForSectionAt section: Int
-    ) -> UIEdgeInsets {
+  ) -> UIEdgeInsets {
     switch self.viewMode {
     case .card:
       return UIEdgeInsets(top: 10, left: 0, bottom: 10, right: 0)
@@ -350,7 +322,7 @@ extension FeedViewController: UICollectionViewDelegateFlowLayout {
     _ collectionView: UICollectionView,
     layout collectionViewLayout: UICollectionViewLayout,
     minimumLineSpacingForSectionAt section: Int
-    ) -> CGFloat {
+  ) -> CGFloat {
     switch self.viewMode {
     case .card:
       return 20
@@ -363,7 +335,7 @@ extension FeedViewController: UICollectionViewDelegateFlowLayout {
     _ collectionView: UICollectionView,
     layout collectionViewLayout: UICollectionViewLayout,
     minimumInteritemSpacingForSectionAt section: Int
-    ) -> CGFloat {
+  ) -> CGFloat {
     return 0
   }
   
@@ -376,8 +348,9 @@ extension FeedViewController {
     guard scrollView.contentSize.height > 0  else { return }
     
     let contentOffsetBottom = scrollView.contentOffset.y + scrollView.height
-    if contentOffsetBottom >= scrollView.contentSize.height - 300 {
-      fetchPosts(isMore: true)
+    let isReachedBottom = contentOffsetBottom >= scrollView.contentSize.height - 300
+    if let nextURLString = self.nextURLString, isReachedBottom {
+      fetchPosts(paging: .next(nextURLString))
     }
   }
   

@@ -15,8 +15,8 @@ final class CropViewController: UIViewController {
   fileprivate let scrollView = UIScrollView()
   fileprivate let imageView = UIImageView()
   
-  fileprivate let cropAreaView = UIView()
   fileprivate let topCoverView = UIView()
+  fileprivate let cropAreaView = UIView()
   fileprivate let bottomCoverView = UIView()
   
   // MARK: Initializers
@@ -35,12 +35,12 @@ final class CropViewController: UIViewController {
     self.navigationItem.rightBarButtonItem = UIBarButtonItem(
       barButtonSystemItem: .done,
       target: self,
-      action: #selector(doneButtonItemDidTap(_:))
+      action: #selector(doneButtonItemDidTap)
     )
     self.navigationItem.leftBarButtonItem = UIBarButtonItem(
       barButtonSystemItem: .cancel,
       target: self,
-      action: #selector(cancelButtonItemDidTap(_:))
+      action: #selector(cancelButtonItemDidTap)
     )
     
     // navigationController는 navigationController에 루트뷰 컨트롤러로 할당되었을 때 사용가능하므로
@@ -110,10 +110,10 @@ final class CropViewController: UIViewController {
     
     if imageWidth > imageHeight {                       // 가로로 긴 이미지 (landscape)
       self.imageView.height = self.cropAreaView.height
-      self.imageView.width = self.cropAreaView.height * imageWidth / imageHeight
+      self.imageView.width = self.cropAreaView.height * (imageWidth / imageHeight)
     } else if imageWidth < imageHeight {                // 세로로 긴 이미지 (portrait)
       self.imageView.width = self.cropAreaView.width
-      self.imageView.height = self.cropAreaView.width * imageHeight / imageWidth
+      self.imageView.height = self.cropAreaView.width * (imageHeight / imageWidth)
     } else {                                            // 정사각형
       self.imageView.size = self.cropAreaView.size
     }

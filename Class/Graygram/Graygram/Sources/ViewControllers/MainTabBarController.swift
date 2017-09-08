@@ -1,10 +1,3 @@
-//
-//  MainTabBarController.swift
-//  Graygram
-//
-//  Created by Dabu on 2017. 6. 19..
-//  Copyright © 2017년 Dabu. All rights reserved.
-//
 
 import UIKit
 
@@ -12,8 +5,8 @@ final class MainTabBarController: UITabBarController {
   
   // MARK: Properties
   
-  let feedViewController = FeedViewController()
-  let settingsViewController = UIViewController()
+  fileprivate let feedViewController = FeedViewController()
+  fileprivate let settingsViewController = SettingsViewController()
   
   /// 업로드 버튼 역할을 할 가짜 뷰 컨트롤러. 실제로 선택되지는 않는다.
   fileprivate let fakeUploadViewController = UIViewController()
@@ -76,7 +69,7 @@ extension MainTabBarController: UITabBarControllerDelegate {
   func tabBarController(
     _ tabBarController: UITabBarController,
     shouldSelect viewController: UIViewController
-    ) -> Bool {
+  ) -> Bool {
     if viewController === fakeUploadViewController {
       self.presentImagePickerController()
       return false
@@ -92,7 +85,7 @@ extension MainTabBarController: UIImagePickerControllerDelegate, UINavigationCon
   func imagePickerController(
     _ picker: UIImagePickerController,
     didFinishPickingMediaWithInfo info: [String : Any]
-    ) {
+  ) {
     
     guard let image = info[UIImagePickerControllerOriginalImage] as? UIImage else { return }
     picker.dismiss(animated: true, completion: nil)

@@ -1,6 +1,5 @@
 
 import UIKit
-import Alamofire
 
 final class PostEditViewController: UIViewController {
   
@@ -29,11 +28,11 @@ final class PostEditViewController: UIViewController {
     super.init(nibName: nil, bundle: nil)
     
     self.cancelButtonItem.target = self
-    self.cancelButtonItem.action = #selector(cancelButtonItemDidTap(_:))
+    self.cancelButtonItem.action = #selector(cancelButtonItemDidTap)
     self.navigationItem.leftBarButtonItem = self.cancelButtonItem
     
     self.doneButtonItem.target = self
-    self.doneButtonItem.action = #selector(doneButtonItemDidTap(_:))
+    self.doneButtonItem.action = #selector(doneButtonItemDidTap)
     self.navigationItem.rightBarButtonItem = self.doneButtonItem
     
     self.progressView.isHidden = true
@@ -44,7 +43,7 @@ final class PostEditViewController: UIViewController {
     self.tableView.dataSource = self
     self.tableView.keyboardDismissMode = .interactive
     
-    self.title = "Post"
+    self.navigationItem.title = "PostEdit"
   }
   
   required init?(coder aDecoder: NSCoder) {
@@ -74,7 +73,7 @@ final class PostEditViewController: UIViewController {
     // Notification
     NotificationCenter.default.addObserver(
       self,
-      selector: #selector(keyboardWillChangeFrame(notification:)),
+      selector: #selector(keyboardWillChangeFrame),
       name: .UIKeyboardWillChangeFrame,
       object: nil
     )
@@ -89,7 +88,7 @@ final class PostEditViewController: UIViewController {
     
     let keyboardVisibleHeight = UIScreen.main.bounds.height - keyboardFrame.y
     UIView.animate(withDuration: duration) {
-      //      self.tableView.contentInset.bottom = keyboardFrame.height  height값은 바뀌지 않기 때문에 키보드가 내려갔을 경우엔 결과가 좋지 않을 것이다.
+//      self.tableView.contentInset.bottom = keyboardFrame.height  height값은 바뀌지 않기 때문에 키보드가 내려갔을 경우엔 결과가 좋지 않을 것이다.
       self.tableView.contentInset.bottom = keyboardVisibleHeight
       
       let isShowing = keyboardVisibleHeight > 0
@@ -111,65 +110,32 @@ final class PostEditViewController: UIViewController {
     self.setContorlsEnabled(false)
     self.progressView.isHidden = false
     
-    let urlString = "https://api.graygram.com/posts"
-    Alamofire.upload(
-      multipartFormData: { formData in
-        if let imageData = UIImageJPEGRepresentation(self.image, 1) {  // JPEG인코딩, 손실압축
-          //        UIImagePNGRepresentation(<#T##image: UIImage##UIImage#>) // PNG 인코딩, 무손실압축
-          formData.append(
-            imageData,
-            withName: "photo",
-            fileName: "photo",
-            mimeType: "image/jpeg"     // imageData가 어떤형식으로 된 이미지인지 나타내주는 타입
-          )
-        }
-        if let textData = self.text?.data(using: .utf8) {
-          formData.append(
-            textData,
-            withName: "message"
-          )
-        }
+    PostService.create(
+      image: self.image,
+      message: self.text,
+      progress: { [weak self] progress in
+        guard let `self` = self else { return }
+        self.progressView.progress = Float(progress.completedUnitCount) / Float(progress.totalUnitCount)
       },
-      to: urlString,
-      method: .post,
-      encodingCompletion: { encodingResult in
-        switch encodingResult {
-        case .success(let request, _, _):
-          print("인코딩 성공 \(request)")
-          request
-            .uploadProgress { progress in
-              // Progress의 totalUnitCount와 copletedUnitCount 프로퍼티를 조사해보자
-              self.progressView.progress = Float(progress.completedUnitCount) / Float(progress.totalUnitCount)
-            }
-            .validate(statusCode: 200..<400)
-            .responseJSON { response in
-              switch response.result {
-              case .success(let value):
-                print("업로드 성공: \(value)")
-                if let json = value as? [String: Any],
-                  let post = Post(JSON: json) {
-                  NotificationCenter
-                    .default
-                    .post(
-                      name: .postDidCreate,
-                      object: self,
-                      userInfo: ["post": post]
-                    )
-                }
-                self.dismiss(animated: true, completion: nil)
-              case .failure(let error):
-                print("업로드 실패: \(error)")
-                self.setContorlsEnabled(true)
-                self.progressView.isHidden = false
-              }
-            }
-        case .failure(let error):
-          print("인코딩 실패 \(error)")
+      completion: { [weak self] response in
+        guard let `self` = self else { return }
+        switch response.result {
+        case .success:
+          self.dismiss(animated: true, completion: nil)
+        case .failure:
           self.setContorlsEnabled(true)
-          self.progressView.isHidden = false
+          self.progressView.isHidden = true
         }
       }
     )
+  }
+  
+  // MARK: Others
+  
+  fileprivate func setContorlsEnabled(_ isEnabled: Bool) {
+    self.cancelButtonItem.isEnabled = isEnabled
+    self.doneButtonItem.isEnabled = isEnabled
+    self.view.isUserInteractionEnabled = isEnabled
   }
   
 }
@@ -214,13 +180,6 @@ extension PostEditViewController: UITableViewDataSource {
     }
   }
   
-  // MARK: Others
-  
-  fileprivate func setContorlsEnabled(_ isEnabled: Bool) {
-    self.cancelButtonItem.isEnabled = isEnabled
-    self.doneButtonItem.isEnabled = isEnabled
-    self.view.isUserInteractionEnabled = isEnabled
-  }
 }
 
 // MARK: - TableView Delegate

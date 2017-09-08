@@ -48,8 +48,10 @@ final class PostEditViewTextCell: UITableViewCell {
     let margin = CGFloat(10)
     let minimumHeight = ceil(Font.textView.lineHeight) * 3
     guard let text = text else { return minimumHeight + margin * 2 }
-    return max(text.size(width: width, font: Font.textView).height,
-               minimumHeight) + margin * 2
+    return max(
+      text.size(width: width, font: Font.textView).height,
+      minimumHeight
+      ) + margin * 2
   }
 }
 
