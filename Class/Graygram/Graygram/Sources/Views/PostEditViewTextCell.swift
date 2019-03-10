@@ -51,7 +51,7 @@ final class PostEditViewTextCell: UITableViewCell {
     return max(
       text.size(width: width, font: Font.textView).height,
       minimumHeight
-      ) + margin * 2
+    ) + margin * 2
   }
 }
 

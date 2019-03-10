@@ -9,7 +9,6 @@ final class LoginViewController: UIViewController {
   fileprivate let passwordTextField = UITextField()
   fileprivate let loginButton = UIButton()
   
-  
   // MARK: - View Life Cycle
   
   override func viewDidLoad() {
@@ -25,7 +24,7 @@ final class LoginViewController: UIViewController {
     usernameTextField.autocorrectionType = .no
     usernameTextField.addTarget(
       self,
-      action: #selector(textFieldDidChangeText(_:)),
+      action: #selector(textFieldDidChangeText),
       for: .editingChanged
     )
     passwordTextField.borderStyle = .roundedRect
@@ -78,20 +77,20 @@ final class LoginViewController: UIViewController {
   
   // MARK: - Actions
   
-  fileprivate dynamic func loginButtonDidTap(_ sender: UIButton) {
-    // do validation
+  @objc private func loginButtonDidTap(_ sender: UIButton) {
+    // Do validation
     guard let username = usernameTextField.text, !username.isEmpty else { return }
     guard let password = passwordTextField.text, !password.isEmpty else { return }
     login(username: username, password: password)
   }
   
-  fileprivate dynamic func textFieldDidChangeText(_ sender: UITextField) {
+  @objc private func textFieldDidChangeText(_ sender: UITextField) {
     sender.backgroundColor = .white
   }
   
   // MARK: - Login
   
-  fileprivate func login(username: String, password: String) {
+  private func login(username: String, password: String) {
     usernameTextField.isEnabled = false
     passwordTextField.isEnabled = false
     loginButton.isEnabled = false
@@ -111,6 +110,7 @@ final class LoginViewController: UIViewController {
         case .success(let value):
           print("로그인 성공 \(value)")
           AppDelegate.instance?.presentMainScreen()
+          
         case .failure(let error):
           print("로그인 실패❌ \(error)")
           if let errorInfo = response.errorInfo() {

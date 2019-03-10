@@ -195,7 +195,7 @@ final class PostCardCell: UICollectionViewCell {
   
   // MARK: - Action
   
-  func likeButtonDidTap(_ sender: UIButton) {
+  @objc func likeButtonDidTap(_ sender: UIButton) {
     guard let post = self.post else { return }
 
     // 먼저 성공을 가정하고 UI의 변경을 우선하고 failure시 다시 UI재변경

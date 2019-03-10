@@ -3,7 +3,7 @@ import UIKit
 
 final class SplashViewController: UIViewController {
   
-  fileprivate let activityIndicatorView = UIActivityIndicatorView(activityIndicatorStyle: .gray)
+  private let activityIndicatorView = UIActivityIndicatorView(activityIndicatorStyle: .gray)
   
   // MARK: - ViewController Lify Cycle
   
@@ -19,18 +19,18 @@ final class SplashViewController: UIViewController {
   
   override func viewDidAppear(_ animated: Bool) {
     super.viewDidAppear(animated)
-    
-    UserService.me { response in
-      switch response.result {
-      case .success(let value):
-        print("내 프로필 정보 받아오기 성공 ⭕️ \(value)")
-        AppDelegate.instance?.presentMainScreen()
-        
-      case .failure(let error):
-        print("내 프로필 정보 받아오기 실패 ❌ \(error)")
-        AppDelegate.instance?.presentLoginScreen()
-      }
-    }
+    AppDelegate.instance?.presentMainScreen()
+//    UserService.me { response in
+//      switch response.result {
+//      case .success(let value):
+//        print("내 프로필 정보 받아오기 성공 ⭕️ \(value)")
+//        AppDelegate.instance?.presentMainScreen()
+//
+//      case .failure(let error):
+//        print("내 프로필 정보 받아오기 실패 ❌ \(error)")
+//        AppDelegate.instance?.presentLoginScreen()
+//      }
+//    }
     
   }
   

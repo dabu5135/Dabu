@@ -5,21 +5,21 @@ final class PostEditViewController: UIViewController {
   
   // MARK: Properties
   
-  fileprivate let cancelButtonItem = UIBarButtonItem(
+  private let cancelButtonItem = UIBarButtonItem(
     barButtonSystemItem: .cancel,
     target: nil,
     action: nil
   )
-  fileprivate let doneButtonItem = UIBarButtonItem(
+  private let doneButtonItem = UIBarButtonItem(
     barButtonSystemItem: .done,
     target: nil,
     action: nil
   )
-  fileprivate let progressView = UIProgressView()
-  fileprivate let tableView = UITableView(frame: .zero, style: .grouped)
+  private let progressView = UIProgressView()
+  private let tableView = UITableView(frame: .zero, style: .grouped)
   
-  fileprivate let image: UIImage
-  fileprivate var text: String?
+  private let image: UIImage
+  private var text: String?
   
   // MARK: Initailizer
   
@@ -81,14 +81,14 @@ final class PostEditViewController: UIViewController {
   
   // MARK: Selector
   
-  fileprivate dynamic func keyboardWillChangeFrame(notification: Notification) {
+  @objc private func keyboardWillChangeFrame(notification: Notification) {
     guard let userInfo = notification.userInfo else { return }
     guard let keyboardFrame = userInfo[UIKeyboardFrameEndUserInfoKey] as? CGRect else { return }
     guard let duration = userInfo[UIKeyboardAnimationDurationUserInfoKey] as? TimeInterval else { return }
     
     let keyboardVisibleHeight = UIScreen.main.bounds.height - keyboardFrame.y
     UIView.animate(withDuration: duration) {
-//      self.tableView.contentInset.bottom = keyboardFrame.height  height값은 바뀌지 않기 때문에 키보드가 내려갔을 경우엔 결과가 좋지 않을 것이다.
+      //      self.tableView.contentInset.bottom = keyboardFrame.height  height값은 바뀌지 않기 때문에 키보드가 내려갔을 경우엔 결과가 좋지 않을 것이다.
       self.tableView.contentInset.bottom = keyboardVisibleHeight
       
       let isShowing = keyboardVisibleHeight > 0
@@ -102,11 +102,11 @@ final class PostEditViewController: UIViewController {
     }
   }
   
-  fileprivate dynamic func cancelButtonItemDidTap(_ sender: UIBarButtonItem) {
+  @objc private func cancelButtonItemDidTap(_ sender: UIBarButtonItem) {
     self.dismiss(animated: true, completion: nil)
   }
   
-  fileprivate dynamic func doneButtonItemDidTap(_ sender: UIBarButtonItem) {
+  @objc private func doneButtonItemDidTap(_ sender: UIBarButtonItem) {
     self.setContorlsEnabled(false)
     self.progressView.isHidden = false
     
@@ -132,7 +132,7 @@ final class PostEditViewController: UIViewController {
   
   // MARK: Others
   
-  fileprivate func setContorlsEnabled(_ isEnabled: Bool) {
+  private func setContorlsEnabled(_ isEnabled: Bool) {
     self.cancelButtonItem.isEnabled = isEnabled
     self.doneButtonItem.isEnabled = isEnabled
     self.view.isUserInteractionEnabled = isEnabled

@@ -10,7 +10,7 @@ extension String {
     
     let constraintSize = CGSize(width: width, height: maximumHeight)
     let options: NSStringDrawingOptions = [.usesFontLeading, .usesLineFragmentOrigin]
-    let attributes: [String: Any] = [NSFontAttributeName: font]
+    let attributes: [NSAttributedStringKey: Any] = [NSAttributedStringKey.font: font]
     let boundingRect = self.boundingRect(
       with: constraintSize,
       options: options,

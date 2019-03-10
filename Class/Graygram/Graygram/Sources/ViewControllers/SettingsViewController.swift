@@ -2,26 +2,27 @@
 import UIKit
 import SafariServices
 
+
 final class SettingsViewController: UIViewController {
   
-  fileprivate struct Section {
+  private struct Section {
     let items: [SectionItem]
   }
-  fileprivate enum SectionItem {
+  private enum SectionItem {
     case version
     case openSource
     case icons
     case logout
   }
-  fileprivate struct CellData {
+  private struct CellData {
     var text: String
     var detailText: String?
   }
   
   // MARK: - Properties
-  
-  fileprivate let tableView = UITableView(frame: .zero, style: .grouped)
-  fileprivate var sections: [Section] = [
+
+  private let tableView = UITableView(frame: .zero, style: .grouped)
+  private var sections: [Section] = [
     Section(items: [
       .version,
       .openSource,
@@ -37,7 +38,6 @@ final class SettingsViewController: UIViewController {
   init() {
     super.init(nibName: nil, bundle: nil)
     self.view.backgroundColor = .white
-    
     self.tableView.backgroundColor = .lightGray
     self.tableView.dataSource = self
     self.tableView.delegate = self
@@ -61,16 +61,19 @@ final class SettingsViewController: UIViewController {
   
   // MARK: CellData
   
-  fileprivate func cellData(for sectionItem: SectionItem) -> CellData {
+  private func cellData(for sectionItem: SectionItem) -> CellData {
     switch sectionItem {
     case .version:
       let versionKey = "CFBundleShortVersionString"
       let version = Bundle.main.object(forInfoDictionaryKey: versionKey) as? String
       return CellData(text: "버전", detailText: version)
+      
     case .openSource:
       return CellData(text: "오픈소스 라이센스", detailText: nil)
+      
     case .icons:
       return CellData(text: "아이콘 출처", detailText: nil)
+      
     case .logout:
       return CellData(text: "로그아웃", detailText: nil)
     }
@@ -105,6 +108,7 @@ extension SettingsViewController: UITableViewDataSource {
     return cell
   }
   
+  
 }
 
 // MARK: - UITableViewDelegate
@@ -119,10 +123,8 @@ extension SettingsViewController: UITableViewDelegate {
     let sectionItem = self.sections[indexPath.section].items[indexPath.row]
     
     switch sectionItem {
-    case .version:
-      break
-    case .openSource:
-      break
+    case .version: break
+    case .openSource: break
     case .icons:
       guard let url = URL(string: "https://icons8.com") else { return }
       let safariViewControlelr = SFSafariViewController(url: url)
@@ -139,7 +141,6 @@ extension SettingsViewController: UITableViewDelegate {
       })
       actionSheet.addAction(UIAlertAction(title: "취소", style: .cancel, handler: nil))
       self.present(actionSheet, animated: true, completion: nil)
-      break
     }
   }
   

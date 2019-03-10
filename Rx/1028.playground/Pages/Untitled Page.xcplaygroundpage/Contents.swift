@@ -1,82 +1,57 @@
-import Foundation
 
-extension Double {
+
+import UIKit
+import PlaygroundSupport
+
+
+//: Protocol & Extension 예제 - Shakable
+
+protocol Shakable { }
+
+extension Shakable where Self: UIView {
   
-  static let someTypeProperty: String = .init("sdfdsf")
-}
-
-extension Int {
-  
-  var double: Int {
-    return self * 2
-  }
-}
-
-struct Position {
-  
-  var x: Float
-  var y: Float
-}
-
-extension Position {
-  
-  func transform(withOther position: Position) -> Position {
-    return Position(x: self.x + position.x,
-                    y: self.y + position.y)
-  }
-}
-
-let foo = Position(x: 10, y: 10)
-foo.transform(withOther: Position(x: 20, y: 20))
-
-
-enum API {
-  
-  case getList
-  case getDetail
-}
-
-
-extension API {
-  
-  var host: String {
-    return "https://someAPI.com"
-  }
-  
-  var path: String {
-    switch self {
-    case .getList:
-      return "/list"
-    case .getDetail:
-      return "/detail"
-    }
-  }
-  
-  var url: URL? {
-    return URL(string: "\(host)\(path)")
+  func shake() {
+    let animation = CABasicAnimation(keyPath: "position")
+    animation.repeatCount = 5
+    animation.autoreverses = true
+    animation.duration = 0.1
+    animation.toValue = NSValue(cgPoint: CGPoint(x: self.center.x - 4,
+                                                 y: self.center.y)
+    )
+    animation.fromValue = NSValue(cgPoint: CGPoint(x: self.center.x + 4,
+                                                   y: self.center.y)
+    )
+    self.layer.add(animation, forKey: "positoin")
   }
 }
 
 
+class SomeView: UIButton, Shakable { }
 
 
 
+class SomViewController: UIViewController {
+  
+  override func viewDidLoad() {
+    super.viewDidLoad()
+    
+    view.backgroundColor = .white
+    let foo = SomeView()
+    foo.setTitle("sdfsdf", for: .normal)
+    foo.frame = CGRect(x: 50, y: 50, width: 200, height: 200)
+    foo.addTarget(self, action: #selector(didTapButton(_:)), for: .touchUpInside)
+    foo.backgroundColor = .red
+    view.addSubview(foo)
+  }
+  
+  
+  @objc func didTapButton(_ sender: SomeView) {
+    
+    sender.shake()
+  }
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+PlaygroundPage.current.liveView = SomViewController()
 
 
 

@@ -78,8 +78,8 @@ struct PostService: APIServiceType {
     image: UIImage,
     message: String?,
     progress: @escaping (Progress) -> Void,
-    completion: @escaping (DataResponse<Post>
-  ) -> Void) {
+    completion: @escaping (DataResponse<Post>) -> Void
+  ) {
     
     let urlString = self.url("/posts")
     Alamofire.upload(

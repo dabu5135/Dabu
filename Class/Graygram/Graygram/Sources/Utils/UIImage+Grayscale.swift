@@ -12,7 +12,7 @@ extension UIImage {
       bitsPerComponent: 8,
       bytesPerRow: 0,
       space: CGColorSpaceCreateDeviceGray(),
-      bitmapInfo: .allZeros
+      bitmapInfo: 0   
     )
     else { return nil }
     

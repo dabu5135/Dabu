@@ -12,12 +12,12 @@ final class CropViewController: UIViewController {
   
   var didFinishCropping: ((UIImage) -> Void)?
   
-  fileprivate let scrollView = UIScrollView()
-  fileprivate let imageView = UIImageView()
+  private let scrollView = UIScrollView()
+  private let imageView = UIImageView()
   
-  fileprivate let topCoverView = UIView()
-  fileprivate let cropAreaView = UIView()
-  fileprivate let bottomCoverView = UIView()
+  private let topCoverView = UIView()
+  private let cropAreaView = UIView()
+  private let bottomCoverView = UIView()
   
   // MARK: Initializers
   
@@ -124,14 +124,14 @@ final class CropViewController: UIViewController {
     self.centerContent()
   }
   
-  fileprivate func centerContent() {
+  private func centerContent() {
     self.scrollView.contentOffset.x = (self.scrollView.contentSize.width - self.scrollView.width) / 2
     self.scrollView.contentOffset.y = (self.scrollView.contentSize.height - self.scrollView.height) / 2
   }
   
   // MARK: Actions
   
-  fileprivate dynamic func doneButtonItemDidTap(_ sender: UIBarButtonItem) {
+  @objc private func doneButtonItemDidTap(_ sender: UIBarButtonItem) {
     guard let image = self.imageView.image else { return }
     
     // cropAreaView.frame을 imageVIew.frame과 같은 좌표계로 변경
@@ -150,7 +150,7 @@ final class CropViewController: UIViewController {
     }
   }
   
-  fileprivate dynamic func cancelButtonItemDidTap(_ sender: UIBarButtonItem) {
+  @objc private func cancelButtonItemDidTap(_ sender: UIBarButtonItem) {
     self.dismiss(animated: true, completion: nil)
   }
   

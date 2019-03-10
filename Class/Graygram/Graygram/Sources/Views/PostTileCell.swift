@@ -45,7 +45,7 @@ final class PostTileCell: UICollectionViewCell {
  
   // MARK: Selector
   // Gesture
-  fileprivate dynamic func contentViewDidTap() {
+  @objc private func contentViewDidTap() {
     self.didTap?()
   }
 }

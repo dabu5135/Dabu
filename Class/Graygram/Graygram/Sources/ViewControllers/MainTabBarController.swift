@@ -38,13 +38,13 @@ final class MainTabBarController: UITabBarController {
   
   // MARK: ImagePicker
   
-  fileprivate func presentImagePickerController() {
+  private func presentImagePickerController() {
     let pickerController = UIImagePickerController()
     pickerController.delegate = self
     self.present(pickerController, animated: true, completion: nil)
   }
   
-  fileprivate func presentCropViewController(image: UIImage) {
+  private func presentCropViewController(image: UIImage) {
     let cropViewController = CropViewController(image: image)
     cropViewController.didFinishCropping = { image in
       guard let grayscaledImage = image.grayscaled() else { return }
@@ -56,7 +56,7 @@ final class MainTabBarController: UITabBarController {
     self.present(navigationController, animated: true, completion: nil)
   }
   
-  fileprivate func presentPostEditViewController(image: UIImage) {
+  private func presentPostEditViewController(image: UIImage) {
     let postEditViewController = PostEditViewController(image: image)
     let navigationControlelr = UINavigationController(rootViewController: postEditViewController)
     self.present(navigationControlelr, animated: true, completion: nil)

@@ -3,19 +3,17 @@ import UIKit
 
 final class FeedViewController: UIViewController {
 
-  enum ViewMode {
+  fileprivate enum ViewMode {
     case card
     case tile
   }
   
-  let feedURL = "https://api.graygram.com/feed"
-  
   // MARK: Properties
   
-  fileprivate var posts: [Post] = []
-  fileprivate var nextURLString: String?
-  fileprivate var isLoading: Bool = false
-  fileprivate var viewMode: ViewMode = .card {
+  private var posts: [Post] = []
+  private var nextURLString: String?
+  private var isLoading: Bool = false
+  private var viewMode: ViewMode = .card {
     didSet {
       switch self.viewMode {
       case .card:
@@ -27,20 +25,20 @@ final class FeedViewController: UIViewController {
     }
   }
   
-  fileprivate let tileButtonItem = UIBarButtonItem(
+  private let tileButtonItem = UIBarButtonItem(
     image: UIImage(named: "icon-tile"),
     style: .plain,
     target: nil,
     action: nil
   )
-  fileprivate let cardButtonItem = UIBarButtonItem(
+  private let cardButtonItem = UIBarButtonItem(
     image: UIImage(named: "icon-card"),
     style: .plain,
     target: nil,
     action: nil
   )
-  fileprivate let refreshControl = UIRefreshControl()
-  fileprivate let collectionView = UICollectionView(
+  private let refreshControl = UIRefreshControl()
+  private let collectionView = UICollectionView(
     frame: .zero,
     collectionViewLayout: UICollectionViewFlowLayout()
   )
@@ -109,7 +107,7 @@ final class FeedViewController: UIViewController {
   
   // MARK: configure
   
-  fileprivate func configureCollectionView() {
+  private func configureCollectionView() {
     
     collectionView.snp.makeConstraints { make in
       make.edges.equalToSuperview()
@@ -139,18 +137,19 @@ final class FeedViewController: UIViewController {
     collectionView.delegate = self
   }
   
-  func refreshControlDidChangeValue() {
+  @objc func refreshControlDidChangeValue() {
     fetchPosts(paging: .refresh)
   }
   
   // MARK: Fetch
   
-  fileprivate func fetchPosts(paging: Paging) {
+  private func fetchPosts(paging: Paging) {
     guard !isLoading else { return }
     self.isLoading = true
     UIApplication.shared.isNetworkActivityIndicatorVisible = true
     
-    FeedService.feed(paging: paging) { response in
+    FeedService.feed(paging: paging) { [weak self] response in
+      guard let `self` = self else { return }
       self.isLoading = false
       self.refreshControl.endRefreshing()
       UIApplication.shared.isNetworkActivityIndicatorVisible = false
@@ -175,27 +174,27 @@ final class FeedViewController: UIViewController {
   
   // MARK: Selector
   // Notification
-  fileprivate dynamic func postDidLike(notification: Notification) {
+  @objc private func postDidLike(notification: Notification) {
     guard let postID = notification.userInfo?["postID"] as? Int else { return }
     guard let index = self.posts.index(where: { $0.id == postID }) else { return }
     
     var newPost = self.posts[index]
     newPost.isLiked = true
     newPost.likeCount! += 1
-    self.posts[index] = newPost
+    self.posts[index] = newPost    
   }
   
-  fileprivate dynamic func postDidUnLike(notification: Notification) {
+  @objc private func postDidUnLike(notification: Notification) {
     guard let postID = notification.userInfo?["postID"] as? Int else { return }
     guard let index = self.posts.index(where: { $0.id == postID}) else { return }
-    
+
     var newPost = self.posts[index]
     newPost.isLiked = false
     newPost.likeCount! -= 1
     self.posts[index] = newPost
   }
   
-  fileprivate dynamic func postDidCreate(notification: Notification) {
+  @objc private func postDidCreate(notification: Notification) {
     guard let post = notification.userInfo?["post"] as? Post else { return }
     self.posts.insert(post, at: 0)
     self.collectionView.reloadData()
@@ -203,11 +202,11 @@ final class FeedViewController: UIViewController {
   }
   
   // BarButtonItem
-  fileprivate dynamic func tileButtonItemDidTap() {
+  @objc private func tileButtonItemDidTap() {
     self.viewMode = .tile
   }
   
-  fileprivate dynamic func cardButtonItemDidTap() {
+  @objc private func cardButtonItemDidTap() {
     self.viewMode = .card
   }
 }
@@ -238,7 +237,7 @@ extension FeedViewController: UICollectionViewDataSource {
       let cell = collectionView.dequeueReusableCell(
         withReuseIdentifier: "cardCell",
         for: indexPath
-        ) as! PostCardCell
+      ) as! PostCardCell
       cell.configure(post: self.posts[indexPath.item])
       return cell
     case .tile:

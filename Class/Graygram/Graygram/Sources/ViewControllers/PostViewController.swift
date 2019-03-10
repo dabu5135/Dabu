@@ -3,10 +3,10 @@ import UIKit
 
 final class PostViewController: UIViewController {
   
-  fileprivate let postID: Int
-  fileprivate var post: Post?
+  private let postID: Int
+  private var post: Post?
   
-  fileprivate let collectionView = UICollectionView(
+  private let collectionView = UICollectionView(
     frame: .zero,
     collectionViewLayout: UICollectionViewFlowLayout()
   )
@@ -43,7 +43,7 @@ final class PostViewController: UIViewController {
   
   // MARK: API Call
   
-  fileprivate func fetchPost() {
+  private func fetchPost() {
     PostService.post(id: self.postID) { [weak self] response in
       guard let `self` = self else { return }
       switch response.result {
