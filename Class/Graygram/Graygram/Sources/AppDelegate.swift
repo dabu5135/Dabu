@@ -6,7 +6,7 @@ import ManualLayout
 import SnapKit
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+final class AppDelegate: UIResponder, UIApplicationDelegate {
 
   // MARK: Properties
   
